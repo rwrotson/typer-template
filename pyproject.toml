@@ -1,0 +1,37 @@
+[project]
+name = "cli-app"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+  {name = "Igor Lashkov", email = "rwrotson@yandex.ru"},
+    {name = "Igor Lashkov11", email = "rwrotson@yandex2.ru"},
+]
+maintainers = []
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.13",
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "typer>=0.16.0",
+]
+
+
+[project.scripts]
+cli-app = "main:app"
+
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages.find.where = ["src"]
+
+[tool.distutils.egg_info]
+egg_base = "."
+
+
+
