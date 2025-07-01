@@ -3,8 +3,7 @@ name = "cli-app"
 version = "0.1.0"
 description = "Add your description here"
 authors = [
-  {name = "Igor Lashkov", email = "rwrotson@yandex.ru"},
-    {name = "Igor Lashkov11", email = "rwrotson@yandex2.ru"},
+  { name = "Igor Lashkov", email = "rwrotson@yandex.ru" },
 ]
 maintainers = []
 classifiers = [
