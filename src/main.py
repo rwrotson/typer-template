@@ -1,13 +1,13 @@
-import typer
+from cli.app import app
+from utils.console import get_console
+from utils.log import setup_logging
 
-from cli.command import app as command_app
-from cli.meta_commands import app as version_app
 
-app = typer.Typer()
-
-app.add_typer(version_app)
-app.add_typer(command_app)
+def main():
+    setup_logging()
+    get_console()
+    app()
 
 
 if __name__ == "__main__":
-    app()
+    main()

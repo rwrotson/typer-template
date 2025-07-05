@@ -1,11 +1,11 @@
-from dataclasses import dataclass
-from typing import IO, Callable, Literal, Self
+from functools import cache
+from typing import IO, Callable, Literal
 
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.console import Console, EmojiVariant, HighlighterType, ReprHighlighter, Theme
 
 
-@dataclass(slots=True, frozen=True)
-class ConsoleConfig:
+class ConsoleConfig(BaseSettings):
     color_system: Literal["auto", "standard", "256", "truecolor", "windows"] | None = "auto"
     force_terminal: bool | None = None
     force_jupyter: bool | None = None
@@ -32,24 +32,14 @@ class ConsoleConfig:
     safe_box: bool | None = True
     get_datetime: Callable[[], float] | None = None
 
-    @classmethod
-    def from_env_file(cls) -> Self:
-        pass
-
-    @classmethod
-    def from_env(cls) -> Self:
-        pass
-
-    def merge(self, other: Self) -> Self:
-        return self.__class__()
+    model_config = SettingsConfigDict(
+        env_file="cli_app.env",
+        env_prefix="CLI_APP_CONSOLE_",
+        extra="ignore",
+        case_sensitive=False,
+    )
 
 
-console = Console()
-
-def create_console():
-    global console
-    config = ConsoleConfig.from_env()
-    console = Console()
-
+@cache
 def get_console() -> Console:
-    return console
+    return Console(**ConsoleConfig().model_dump())
