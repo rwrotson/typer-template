@@ -1,12 +1,12 @@
 # serializer version: 1
 # name: test_help_output_snapshot
   '''
-                                                                                  
-   Usage: root [OPTIONS] COMMAND [ARGS]...                                        
-                                                                                  
-   Manage the main application state and top-level options like --version.        
-                                                                                  
-                                                                                  
+  
+   Usage: root [OPTIONS] COMMAND [ARGS]...
+  
+   Manage the main application state and top-level options like --version.
+  
+  
   ╭─ Options ────────────────────────────────────────────────────────────────────╮
   │ --version             -v                   Show the application's version    │
   │                                            and exit.                         │
