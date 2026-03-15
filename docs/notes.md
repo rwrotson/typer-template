@@ -56,20 +56,6 @@ This lets commands accept both `cli-app cmd arg` and `echo arg | cli-app cmd`.
 
 Note: `CliRunner` in tests uses a BytesIO stdin whose `isatty()` returns `False`, so `is_stdin_piped()` always returns `True` in tests. Checking `if not resolved:` (rather than `if resolved is None:`) correctly rejects the empty-string case that CliRunner produces when no `input=` is given.
 
-## Snapshot Testing
-
-[Syrupy](https://github.com/syrupy-project/syrupy) snapshot tests capture CLI output and compare against stored snapshots. The `snapshot` fixture is injected automatically by the plugin — no manual registration needed.
-
-```python
-def test_help_output(snapshot: SnapshotAssertion) -> None:
-    result = runner.invoke(app, ["--help"])
-    assert result.output == snapshot
-```
-
-- **First run / after changes**: `uv run pytest --snapshot-update` writes/updates `__snapshots__/` files.
-- **Normal CI runs**: any output that diverges from the snapshot fails the test.
-- Commit the `__snapshots__/` directory alongside code changes.
-
 ## Commitizen & Versioning
 
 [Commitizen](https://commitizen-tools.github.io/commitizen/) reads Conventional Commit messages to determine the next version and generate CHANGELOG entries. Configuration lives in `[tool.commitizen]` in `pyproject.toml`:

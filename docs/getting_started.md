@@ -69,7 +69,6 @@ Or run the tools directly:
 ```bash
 uv run pytest                        # full suite
 uv run pytest --no-cov               # skip coverage (faster)
-uv run pytest --snapshot-update      # update syrupy snapshots
 uv run pytest tests/path/to/test.py  # single file
 ```
 
@@ -140,26 +139,6 @@ def process(ctx: Context, text: str | None = None) -> None:
         raise typer.Exit(1)
     ...
 ```
-
-### Snapshot testing
-
-Syrupy snapshot tests capture CLI output on first run and compare on subsequent runs:
-
-```python
-from syrupy.assertion import SnapshotAssertion
-
-def test_my_action_output(snapshot: SnapshotAssertion) -> None:
-    result = runner.invoke(app, ["my-command", "my-action", "world"])
-    assert result.output == snapshot
-```
-
-Create or update snapshots with:
-
-```bash
-uv run pytest --snapshot-update
-```
-
-Commit the generated `__snapshots__/` directory.
 
 ## Configuration
 

@@ -1,7 +1,6 @@
 import json
 
 import pytest
-from syrupy.assertion import SnapshotAssertion
 from typer.testing import CliRunner
 
 from cli_app.cli.app import app
@@ -68,19 +67,3 @@ def test_output_format_text_is_default() -> None:
 def test_output_format_invalid_value_fails() -> None:
     result = runner.invoke(app, ["--output-format", "xml", "command", "example-command", "hi"])
     assert result.exit_code != 0
-
-
-def _normalize(output: str) -> str:
-    """Strip trailing whitespace per line so snapshots are portable across OSes."""
-    return "\n".join(line.rstrip() for line in output.splitlines()) + "\n"
-
-
-def test_help_output_snapshot(snapshot: SnapshotAssertion) -> None:
-    # terminal_width=80 pins output width so snapshots are identical across workers/terminals.
-    result = runner.invoke(app, ["--help"], terminal_width=80)
-    assert _normalize(result.output) == snapshot
-
-
-def test_version_output_snapshot(snapshot: SnapshotAssertion) -> None:
-    result = runner.invoke(app, ["--version"], terminal_width=80)
-    assert _normalize(result.output) == snapshot

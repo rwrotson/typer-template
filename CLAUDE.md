@@ -35,7 +35,6 @@ uv run mypy src/
 uv run vulture src/cli_app/ whitelist.py
 uv run pytest
 uv run pytest --no-cov
-uv run pytest --snapshot-update   # create/update syrupy snapshots
 
 # Install pre-commit hooks
 uv run pre-commit install

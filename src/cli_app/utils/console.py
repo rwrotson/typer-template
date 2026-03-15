@@ -22,7 +22,7 @@ _CONSOLE_CONFIG_DYNAMIC_FIELDS_MAPPING: Final[dict[str, dict[str, Callable[..., 
         "now": partial(datetime.now, tz=UTC),
     },
     "get_time": {
-        "now": lambda: datetime.now(tz=UTC).timestamp,
+        "now": lambda: datetime.now(tz=UTC).timestamp(),
     },
 }
 

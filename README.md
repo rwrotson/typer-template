@@ -1,6 +1,6 @@
 # typer-template
 
-A template for building Python CLI applications with [Typer](https://typer.tiangolo.com/), featuring Rich output, structured logging via structlog, snapshot testing, and environment-based configuration.
+A template for building Python CLI applications with [Typer](https://typer.tiangolo.com/), featuring Rich output, structured logging via structlog, and environment-based configuration.
 
 ## Stack
 
@@ -12,7 +12,7 @@ A template for building Python CLI applications with [Typer](https://typer.tiang
 - **[Ruff](https://docs.astral.sh/ruff/)** — linting and formatting
 - **[MyPy](https://mypy.readthedocs.io/)** — strict type checking
 - **[Vulture](https://github.com/jendrikseipp/vulture)** — dead code detection
-- **[pytest](https://docs.pytest.org/)** + **[pytest-xdist](https://github.com/pytest-dev/pytest-xdist)** + **[syrupy](https://github.com/syrupy-project/syrupy)** — parallel testing with snapshot assertions
+- **[pytest](https://docs.pytest.org/)** + **[pytest-xdist](https://github.com/pytest-dev/pytest-xdist)** — parallel testing with coverage enforcement
 - **[commitizen](https://commitizen-tools.github.io/commitizen/)** — Conventional Commits + automated versioning and CHANGELOG
 - **[MkDocs Material](https://squidfunk.github.io/mkdocs-material/)** — documentation site
 
@@ -52,7 +52,6 @@ Or run the tools directly:
 
 ```bash
 uv run pytest --no-cov -n auto          # fast parallel run
-uv run pytest --snapshot-update         # update syrupy snapshots
 uv run pytest tests/path/to/test.py     # single file
 ```
 
