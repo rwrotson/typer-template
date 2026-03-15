@@ -31,7 +31,7 @@
 # ---
 # name: test_version_output_snapshot
   '''
-  cli-app 0.2.0
+  cli-app 0.3.0
 
   Uses:
    - pydantic-settings 2.10.1
