@@ -37,13 +37,6 @@ jobs:
         run: uv run --with pip-audit pip-audit
 
       - name: Scan for vulnerabilities (trivy)
-        uses: aquasecurity/trivy-action@0.35.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: table
-          exit-code: "1"
-          severity: CRITICAL,HIGH
-          skip-dirs: ".venv"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
+          trivy fs --exit-code 1 --severity CRITICAL,HIGH --skip-dirs .venv .
