@@ -70,12 +70,17 @@ def test_output_format_invalid_value_fails() -> None:
     assert result.exit_code != 0
 
 
+def _strip_trailing(output: str) -> str:
+    """Strip trailing whitespace from each line so snapshots survive trailing-whitespace hook."""
+    return "\n".join(line.rstrip() for line in output.splitlines()) + "\n"
+
+
 def test_help_output_snapshot(snapshot: SnapshotAssertion) -> None:
     # terminal_width=80 pins output width so snapshots are identical across workers/terminals.
     result = runner.invoke(app, ["--help"], terminal_width=80)
-    assert result.output == snapshot
+    assert _strip_trailing(result.output) == snapshot
 
 
 def test_version_output_snapshot(snapshot: SnapshotAssertion) -> None:
     result = runner.invoke(app, ["--version"], terminal_width=80)
-    assert result.output == snapshot
+    assert _strip_trailing(result.output) == snapshot
