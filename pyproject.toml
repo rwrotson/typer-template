@@ -65,7 +65,7 @@ cli-app = "cli_app.main:main"
 
 # BUILD BACKEND ----------------------------------------------------------------
 [build-system]
-requires = ["uv_build>=0.8.15,<0.9.0"]
+requires = ["uv_build>=0.8.15,<0.11.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
