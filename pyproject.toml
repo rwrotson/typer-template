@@ -1,7 +1,7 @@
 # PROJECT ----------------------------------------------------------------------
 [project]
 name = "cli-app"
-version = "0.4.0"
+version = "0.4.1"
 description = "Add your description here"
 authors = [
     { name = "Igor Lashkov", email = "rwrotson@yandex.ru" },

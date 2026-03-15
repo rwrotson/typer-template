@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.4.1 (2026-03-15)
+
+### Fix
+
+- pytest-cov improvements
+
 ## v0.4.0 (2026-03-15)
 
 ### Feat
