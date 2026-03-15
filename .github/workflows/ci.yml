@@ -40,7 +40,7 @@ jobs:
         run: uv run --with pip-audit pip-audit
 
       - name: Scan for vulnerabilities (trivy)
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: fs
           scan-ref: .
