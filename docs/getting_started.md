@@ -60,7 +60,6 @@ uv run task fmt         # ruff format .
 uv run task typecheck   # mypy src/
 uv run task test        # pytest (parallel, 80% coverage enforced)
 uv run task test-fast   # pytest --no-cov -n auto
-uv run task dead        # vulture dead-code scan
 uv run task audit       # pip-audit dependency audit
 ```
 

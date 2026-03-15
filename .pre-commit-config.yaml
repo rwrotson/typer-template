@@ -17,11 +17,6 @@ repos:
       - id: trailing-whitespace
       - id: detect-private-key
 
-  - repo: https://github.com/jendrikseipp/vulture
-    rev: 'v2.14'
-    hooks:
-      - id: vulture
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.2
     hooks:

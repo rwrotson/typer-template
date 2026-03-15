@@ -11,7 +11,6 @@ A template for building Python CLI applications with [Typer](https://typer.tiang
 - **[uv](https://docs.astral.sh/uv/)** — package management
 - **[Ruff](https://docs.astral.sh/ruff/)** — linting and formatting
 - **[MyPy](https://mypy.readthedocs.io/)** — strict type checking
-- **[Vulture](https://github.com/jendrikseipp/vulture)** — dead code detection
 - **[pytest](https://docs.pytest.org/)** + **[pytest-xdist](https://github.com/pytest-dev/pytest-xdist)** — parallel testing with coverage enforcement
 - **[commitizen](https://commitizen-tools.github.io/commitizen/)** — Conventional Commits + automated versioning and CHANGELOG
 - **[MkDocs Material](https://squidfunk.github.io/mkdocs-material/)** — documentation site
@@ -44,7 +43,6 @@ uv run task fmt         # ruff format
 uv run task typecheck   # mypy src/
 uv run task test        # pytest (parallel, 80% coverage enforced)
 uv run task test-fast   # pytest --no-cov -n auto
-uv run task dead        # vulture dead-code scan
 uv run task audit       # pip-audit dependency audit
 ```
 
@@ -160,7 +158,6 @@ src/
 | ruff format | formatting check |
 | ruff lint | linting |
 | mypy | strict type checking |
-| vulture | dead code detection |
 | pytest | parallel tests, 80% coverage enforced |
 | pip-audit | known CVE check for dependencies |
 | trivy | filesystem vulnerability scan (CRITICAL/HIGH, fails build) |

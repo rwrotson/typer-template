@@ -25,14 +25,12 @@ uv run task fmt         # ruff format .
 uv run task typecheck   # mypy src/
 uv run task test        # pytest (parallel, 80% coverage enforced)
 uv run task test-fast   # pytest --no-cov -n auto
-uv run task dead        # vulture dead-code scan
 uv run task audit       # pip-audit
 
 # Or run tools directly
 uv run ruff check .
 uv run ruff format .
 uv run mypy src/
-uv run vulture src/cli_app/ whitelist.py
 uv run pytest
 uv run pytest --no-cov
 
@@ -60,7 +58,7 @@ uv run --group docs mkdocs gh-deploy
 
 `.github/workflows/ci.yml` triggers on push/PR to `main` and `dev`. One job:
 
-- **`ci`** — ruff format check → ruff lint → mypy → vulture → pytest → pip-audit → trivy (CRITICAL/HIGH CVE scan).
+- **`ci`** — ruff format check → ruff lint → mypy → pytest → pip-audit → trivy (CRITICAL/HIGH CVE scan).
 
 `.github/workflows/release.yml` triggers on version tags (`v*`). Two jobs:
 

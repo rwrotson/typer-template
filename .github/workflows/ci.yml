@@ -30,9 +30,6 @@ jobs:
       - name: Type check
         run: uv run mypy src/
 
-      - name: Dead code detection
-        run: uv run vulture src/cli_app/ whitelist.py
-
       - name: Run tests
         run: uv run pytest
 

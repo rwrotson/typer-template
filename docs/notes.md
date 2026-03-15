@@ -76,6 +76,6 @@ To use this as a real project:
 2. Update `name` in `pyproject.toml`
 3. Update `module-name` in `[tool.uv.build-backend]` to match the new directory name
 4. Update the console script entry point under `[project.scripts]`
-5. Update `[tool.coverage.run]` source, `[tool.ruff.lint.isort]` known-local-folder, `[tool.vulture]` paths
+5. Update `[tool.coverage.run]` source, `[tool.ruff.lint.isort]` known-local-folder
 6. Update env-var prefixes (`CLI_APP_*`) in `ConsoleConfig`, `LogConfig`, and `Settings`
 7. Do a global find-and-replace of `cli_app.` imports to your new package name
