@@ -28,17 +28,13 @@ def test_read_stdin(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_iter_stdin_lines(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sys, "stdin", io.StringIO("line1\nline2\nline3\n"))
-    lines = list(iter_stdin_lines())
-    assert lines == ["line1", "line2", "line3"]
+    assert list(iter_stdin_lines()) == ["line1", "line2", "line3"]
 
 
-def test_read_stdin_if_piped_returns_content_when_piped(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_read_stdin_if_piped_returns_content(monkeypatch: pytest.MonkeyPatch) -> None:
+    # StringIO.isatty() returns False, so is_stdin_piped() returns True automatically.
     monkeypatch.setattr(sys, "stdin", io.StringIO("piped content"))
-    monkeypatch.setattr(sys.stdin, "isatty", lambda: False)
-    result = read_stdin_if_piped()
-    assert result == "piped content"
+    assert read_stdin_if_piped() == "piped content"
 
 
 def test_read_stdin_if_piped_returns_none_for_tty(monkeypatch: pytest.MonkeyPatch) -> None:

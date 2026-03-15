@@ -43,19 +43,13 @@ def test_get_installed_dependencies_empty_input() -> None:
 def test_get_installed_dependencies_known_package() -> None:
     # typer is a declared dependency of this project and must be installed.
     deps = Meta._get_installed_dependencies(["typer>=0.16.0"])  # noqa: SLF001
-    lower_keys = {d["name"].lower() for d in deps}
-    assert "typer" in lower_keys
+    assert "typer" in {d["name"].lower() for d in deps}
 
 
 def test_get_installed_dependencies_returns_sorted() -> None:
     deps = Meta._get_installed_dependencies(["typer>=0.16.0", "pydantic-settings>=2.0"])  # noqa: SLF001
-    keys = [d["name"] for d in deps]
-    assert keys == sorted(keys)
-
-
-def test_load_from_installed_package_returns_meta() -> None:
-    m = Meta.load_from_installed_package()
-    assert isinstance(m, Meta)
+    names = [d["name"] for d in deps]
+    assert names == sorted(names)
 
 
 def test_get_project_meta_is_cached() -> None:

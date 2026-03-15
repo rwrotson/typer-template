@@ -11,21 +11,13 @@ def test_console_config_defaults() -> None:
     config = ConsoleConfig()
     assert config.markup is True
     assert config.emoji is True
-    assert config.tab_size == _DEFAULT_TAB_SIZE
-    assert config.record is False
     assert config.highlight is True
     assert config.safe_box is True
-
-
-def test_console_config_log_time_default() -> None:
-    config = ConsoleConfig()
+    assert config.record is False
+    assert config.tab_size == _DEFAULT_TAB_SIZE
+    assert config.color_system == "auto"
     assert config.log_time is True
     assert config.log_path is True
-
-
-def test_console_config_color_system_default() -> None:
-    config = ConsoleConfig()
-    assert config.color_system == "auto"
 
 
 def test_get_console_returns_console_instance() -> None:
