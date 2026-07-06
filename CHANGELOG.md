@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.4.3 (2026-07-06)
+
+### Fix
+
+- unbreak docs build by upgrading mkdocs tooling for pygments 2.20
+
 ## v0.4.2 (2026-07-06)
 
 ### Fix
