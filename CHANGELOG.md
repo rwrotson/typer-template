@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.4.4 (2026-07-06)
+
+### Fix
+
+- deploy docs via GitHub Actions Pages and bound uv_build
+
 ## v0.4.3 (2026-07-06)
 
 ### Fix
