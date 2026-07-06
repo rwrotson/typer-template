@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.4.2 (2026-07-06)
+
+### Fix
+
+- upgrade dependencies for security advisories and scope pip-audit to project deps
+
 ## v0.4.1 (2026-03-15)
 
 ### Fix
