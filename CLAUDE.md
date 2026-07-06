@@ -47,11 +47,8 @@ uv run cz changelog      # update CHANGELOG only
 # Serve docs locally (live reload)
 uv run --group docs mkdocs serve
 
-# Build static docs site
+# Build static docs site (CI deploys this to GitHub Pages via actions/deploy-pages)
 uv run --group docs mkdocs build
-
-# Deploy to GitHub Pages (gh-pages branch)
-uv run --group docs mkdocs gh-deploy
 ```
 
 ## CI/CD
@@ -60,14 +57,18 @@ uv run --group docs mkdocs gh-deploy
 
 - **`ci`** — ruff format check → ruff lint → mypy → pytest → pip-audit → trivy (CRITICAL/HIGH CVE scan).
 
-`.github/workflows/release.yml` triggers on version tags (`v*`). Two jobs:
+`.github/workflows/release.yml` triggers on version tags (`v*`) and manual `workflow_dispatch`. One job:
 
-- **`publish`** — `uv build` + `pypa/gh-action-pypi-publish` with OIDC (no `password` → keyless). Permissions: `id-token: write`, `contents: read`.
-- **`docs`** — `mkdocs gh-deploy --force` with `fetch-depth: 0`. Permissions: `contents: write`.
+- **`docs`** — builds the site with `mkdocs build` and deploys it to **GitHub Pages** via
+  `actions/upload-pages-artifact` + `actions/deploy-pages` (the `github-pages` environment).
+  Permissions: `pages: write`, `id-token: write`, `contents: read`. There is **no PyPI publish**.
+
+Pages Source must be set to **"GitHub Actions"** (Settings → Pages), and the `github-pages`
+environment must allow the `v*` tag (Settings → Environments → Deployment branches and tags → no
+restriction, or a `v*` rule) — otherwise the tag-triggered deploy is blocked. Site:
+https://rwrotson.github.io/typer-template/
 
 Dependabot opens weekly PRs for pip packages and GitHub Actions (`.github/dependabot.yml`).
-
-PyPI trusted publisher must be configured on PyPI with workflow file `release.yml` and no environment.
 
 ## Architecture
 
