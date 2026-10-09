@@ -22,7 +22,7 @@ uv run cli-app
 # Tasks via taskipy (uv run task <name>)
 uv run task lint        # ruff check .
 uv run task fmt         # ruff format .
-uv run task typecheck   # mypy src/
+uv run task typecheck   # mypy src/ tests/
 uv run task test        # pytest (parallel, 80% coverage enforced)
 uv run task test-fast   # pytest --no-cov -n auto
 uv run task audit       # pip-audit
@@ -30,7 +30,7 @@ uv run task audit       # pip-audit
 # Or run tools directly
 uv run ruff check .
 uv run ruff format .
-uv run mypy src/
+uv run mypy src/ tests/
 uv run pytest
 uv run pytest --no-cov
 
@@ -55,7 +55,7 @@ uv run --group docs mkdocs build
 
 `.github/workflows/ci.yml` triggers on push/PR to `main` and `dev`. One job:
 
-- **`ci`** — ruff format check → ruff lint → mypy → pytest → pip-audit → trivy (CRITICAL/HIGH CVE scan).
+- **`ci`** — ruff format check → ruff lint → mypy (source and tests) → pytest → package and docs builds → pip-audit → trivy (CRITICAL/HIGH CVE scan).
 
 `.github/workflows/release.yml` triggers on version tags (`v*`) and manual `workflow_dispatch`. One job:
 

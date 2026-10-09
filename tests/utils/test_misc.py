@@ -11,6 +11,6 @@ def test_find_project_root_contains_pyproject_toml() -> None:
 
 def test_find_project_root_unknown_marker_falls_back_to_module_parent() -> None:
     # When no ancestor has the marker the function returns Path(__file__).parent.
-    expected = Path(_misc_module.__file__).parent.resolve()  # type: ignore[arg-type]
+    expected = Path(_misc_module.__file__).parent.resolve()
     result = find_project_root(marker="_nonexistent_marker_xyz_")
     assert result == expected

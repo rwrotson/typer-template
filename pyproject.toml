@@ -253,7 +253,7 @@ major_version_zero = true
 [tool.taskipy.tasks]
 lint = "ruff check ."
 fmt = "ruff format ."
-typecheck = "mypy src/"
+typecheck = "mypy src/ tests/"
 test = "pytest"
 test-fast = "pytest --no-cov -n auto"
 audit = "pip-audit"

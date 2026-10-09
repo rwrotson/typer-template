@@ -40,7 +40,7 @@ Tasks are available via [taskipy](https://github.com/taskipy/taskipy) — run wi
 ```bash
 uv run task lint        # ruff check
 uv run task fmt         # ruff format
-uv run task typecheck   # mypy src/
+uv run task typecheck   # mypy src/ tests/
 uv run task test        # pytest (parallel, 80% coverage enforced)
 uv run task test-fast   # pytest --no-cov -n auto
 uv run task audit       # pip-audit dependency audit
@@ -157,8 +157,10 @@ src/
 |------|-------------|
 | ruff format | formatting check |
 | ruff lint | linting |
-| mypy | strict type checking |
+| mypy | strict type checking for source and tests |
 | pytest | parallel tests, 80% coverage enforced |
+| uv build | package build check |
+| mkdocs build | documentation build check |
 | pip-audit | known CVE check for dependencies |
 | trivy | filesystem vulnerability scan (CRITICAL/HIGH, fails build) |
 
