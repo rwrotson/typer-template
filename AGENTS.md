@@ -20,16 +20,16 @@ uv sync --all-groups --locked
 uv run cli-app
 
 # Tasks via poethepoet (uv run poe <name>)
-uv run poe check       # fmt-check, lint, lint-imports, typecheck, test
-uv run poe fmt         # ruff format .
-uv run poe fmt-check   # ruff format --check .
-uv run poe lint        # ruff check .
+uv run poe check        # fmt-check, lint, lint-imports, typecheck, test
+uv run poe fmt          # ruff format .
+uv run poe fmt-check    # ruff format --check .
+uv run poe lint         # ruff check .
 uv run poe lint-imports # import-linter layer contracts
-uv run poe typecheck   # mypy (strict: src, tests, docs)
-uv run poe test        # pytest (parallel, 95% branch coverage enforced)
-uv run poe test-fast   # pytest without coverage, parallel, random order
-uv run poe docs        # mkdocs serve
-uv run poe audit       # pip-audit over locked dependencies
+uv run poe typecheck    # mypy (strict: src, tests, docs)
+uv run poe test         # pytest (parallel, 95% branch coverage enforced)
+uv run poe test-fast    # pytest without coverage, parallel, random order
+uv run poe docs         # mkdocs serve
+uv run poe audit        # pip-audit over locked dependencies
 
 # Or run tools directly
 uv run ruff check .
@@ -49,11 +49,30 @@ uv run cz bump           # bump version, update CHANGELOG, tag
 uv run cz changelog      # update CHANGELOG only
 
 # Serve docs locally (live reload)
-uv run --group docs mkdocs serve
+uv run poe docs
 
-# Build static docs site (CI deploys this to GitHub Pages via actions/deploy-pages)
-uv run --group docs mkdocs build
+# Build static docs site as CI does (CI deploys it to GitHub Pages via actions/deploy-pages)
+uv run --group docs mkdocs build --strict
 ```
+
+## Dependencies
+
+- Put runtime imports in `[project].dependencies`, development tools in the `dev` group, and documentation tools in the `docs` group.
+- Change dependencies through uv (`uv add`, `uv remove`) so `pyproject.toml` and `uv.lock` change together. Verify the lock with `uv sync --locked --all-groups`.
+- Raise a direct dependency's lower bound when code needs a newer API. The locked environment does not check lower bounds; the CI `lowest` job does.
+- Do not import packages that are installed only as transitive dependencies (for example `click`, which Typer vendors).
+- Security floors for transitive dependencies go in `[tool.uv] constraint-dependencies`.
+- Use the project environment for tools. Do not install packages manually into `.venv`.
+
+## Change Workflow
+
+- Inspect `git status` before editing. Preserve existing uncommitted changes and limit edits to the requested task.
+- Run `uv run poe check` after code changes. After documentation, `mkdocs.yml`, or public docstring changes, also run `uv run --group docs mkdocs build --strict`.
+- Do not lower coverage thresholds, disable checks, relax import-linter contracts, or add lint and type suppressions solely to pass CI. Explain necessary suppressions at the affected line.
+- Use non-rewriting checks (`poe fmt-check`, `poe lint`) for verification; run formatters or `--fix` only when intentionally editing files. Pre-commit's Ruff hooks rewrite files.
+- Report which checks ran, which were skipped, and why. `poe test-fast` is not the full CI suite: it skips coverage, and CI also runs the lowest-dependency job, package and docs builds, and security scans.
+- When changing public settings, global options, or commands, update `.env.example`, README, and MkDocs. Do not edit generated pages (configuration, API reference); edit `Settings` field descriptions and source docstrings instead.
+- Keep the user's `.env` and secrets untracked.
 
 ## CI/CD
 
@@ -156,6 +175,12 @@ Before `setup_logging()` is called (e.g. in tests), structlog defaults to stderr
 | `src/cli_app/utils/emoji.py` | `Emoji` StrEnum for consistent emoji usage |
 | `src/cli_app/utils/progress.py` | Rich `Progress` bar wired to the project console |
 | `src/cli_app/utils/misc.py` | `find_project_root()` helper |
+
+### Testing
+
+`tests/` mirrors the package (`cli/`, `config/`, `services/`, `utils/`). Test use cases directly in `tests/services/`, and argument parsing, output, and exit codes with `CliRunner` in `tests/cli/`.
+
+Tests run in parallel (pytest-xdist) and in random order (pytest-randomly); warnings are errors and each test has a 30-second timeout. Autouse fixtures in `tests/conftest.py` remove `CLI_APP_*` variables, run each test in a temporary working directory (so a local `.env` is not read), restore logging and structlog configuration, and clear the cached console. Tests must not depend on process-wide state or on each other. Reproduce an order-dependent failure with `uv run pytest -p randomly --randomly-seed=<seed>` (the seed is printed at the top of the run).
 
 ### Type Checking
 

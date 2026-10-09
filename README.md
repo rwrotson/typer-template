@@ -2,6 +2,15 @@
 
 A Python CLI template with Typer, Rich output, structlog logging, and environment-based settings.
 
+## What Is Included
+
+- Typer app with global `--verbose`, `--output-format text|json`, `--version`, and `--authors` options; JSON on stdout and diagnostics on stderr; piped stdin support; shell completion commands
+- A `services/` layer for use cases; `ServiceError` subclasses map to stderr messages and exit codes; import-linter contracts keep services independent of Typer, Rich, and settings
+- One Pydantic `Settings` with nested `CLI_APP_CONSOLE__*` and `CLI_APP_LOG__*` sections, a test that keeps `.env.example` in sync, and a generated configuration page
+- structlog logging to stderr (console or JSON) and a rotating JSON log file with UTC timestamps
+- Strict MyPy with the Pydantic plugin, Ruff, pytest in parallel and random order with a 95% branch coverage gate, poethepoet tasks, pre-commit hooks, Commitizen
+- CI with a lowest-dependency test job, package and strict docs builds, pip-audit, and trivy; actions pinned to commit SHAs; MkDocs on GitHub Pages after CI passes on a release tag
+
 ## Stack
 
 - **[Typer](https://typer.tiangolo.com/)** — CLI framework
@@ -11,7 +20,9 @@ A Python CLI template with Typer, Rich output, structlog logging, and environmen
 - **[uv](https://docs.astral.sh/uv/)** — package management
 - **[Ruff](https://docs.astral.sh/ruff/)** — linting and formatting
 - **[MyPy](https://mypy.readthedocs.io/)** — strict type checking
-- **[pytest](https://docs.pytest.org/)** + **[pytest-xdist](https://github.com/pytest-dev/pytest-xdist)** — parallel testing with coverage enforcement
+- **[pytest](https://docs.pytest.org/)** + **[pytest-xdist](https://github.com/pytest-dev/pytest-xdist)** + **[pytest-randomly](https://github.com/pytest-dev/pytest-randomly)** — parallel tests in random order with coverage enforcement
+- **[import-linter](https://import-linter.readthedocs.io/)** — layer boundary contracts
+- **[poethepoet](https://poethepoet.natn.io/)** — task runner
 - **[commitizen](https://commitizen-tools.github.io/commitizen/)** — Conventional Commits + automated versioning and CHANGELOG
 - **[MkDocs Material](https://squidfunk.github.io/mkdocs-material/)** — documentation site
 
@@ -173,6 +184,17 @@ The workflow does not publish the package to PyPI. Set Pages Source to **GitHub 
 ## Using This Template
 
 The distribution, import package, and CLI command have separate names. Follow the [renaming checklist](https://rwrotson.github.io/typer-template/notes/#renaming-the-template) when copying this template into a new project.
+
+### Remove the Example
+
+The example command is meant to be copied, then deleted. When your first real command exists, remove:
+
+- `src/cli_app/services/example.py` and `tests/services/test_example.py`
+- `src/cli_app/cli/commands/command.py`, its export in `src/cli_app/cli/commands/__init__.py`, and its `add_typer` line in `src/cli_app/cli/app.py`
+- the `example-command` tests in `tests/cli/test_app.py` (keep the global option tests by pointing them at your command)
+- the `cli_app.services.example` and `cli_app.cli.commands.command` rows in `docs/reference/index.md`, and the example references in `docs/architecture.md` and `docs/notes.md`
+
+Then remove imports the deleted tests leave unused (Ruff reports them as F401 but does not fix them automatically) and run `uv run poe check` and `uv run --group docs mkdocs build --strict`.
 
 ## Author
 

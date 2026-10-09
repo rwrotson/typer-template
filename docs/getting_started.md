@@ -57,17 +57,19 @@ uv run cli-app completion show
 Tasks are available via [poethepoet](https://poethepoet.natn.io/) — run with `uv run poe <name>`:
 
 ```bash
-uv run poe check       # fmt-check, lint, lint-imports, typecheck, test
-uv run poe fmt         # ruff format .
-uv run poe fmt-check   # ruff format --check .
-uv run poe lint        # ruff check .
+uv run poe check        # fmt-check, lint, lint-imports, typecheck, test
+uv run poe fmt          # ruff format .
+uv run poe fmt-check    # ruff format --check .
+uv run poe lint         # ruff check .
 uv run poe lint-imports # import-linter layer contracts
-uv run poe typecheck   # mypy (strict: src, tests, docs)
-uv run poe test        # pytest (parallel, 95% branch coverage enforced)
-uv run poe test-fast   # pytest without coverage, parallel, random order
-uv run poe docs        # mkdocs serve
-uv run poe audit       # pip-audit over locked dependencies
+uv run poe typecheck    # mypy (strict: src, tests, docs)
+uv run poe test         # pytest (parallel, 95% branch coverage enforced)
+uv run poe test-fast    # pytest without coverage, parallel, random order
+uv run poe docs         # mkdocs serve
+uv run poe audit        # pip-audit over locked dependencies
 ```
+
+Tests run in parallel and in random order. pytest-randomly prints the seed at the top of the run; reproduce an order-dependent failure with `uv run pytest -p randomly --randomly-seed=<seed>`. `poe test-fast` skips coverage; `poe check` runs the same quality and test steps as the CI `quality` and `test` jobs.
 
 Or run the tools directly:
 
