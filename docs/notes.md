@@ -70,12 +70,27 @@ The `commit-msg` pre-commit hook rejects commits that don't follow the format (`
 
 ## Renaming the Template
 
-To use this as a real project:
+Choose three names before editing: a distribution name (for example, `my-tool`), an import
+package (`my_tool`), and a CLI command (`my-tool`). They can differ, but each use of a name
+must stay consistent.
 
-1. Rename `src/cli_app/` to your package name (e.g. `src/myapp/`)
-2. Update `name` in `pyproject.toml`
-3. Update `module-name` in `[tool.uv.build-backend]` to match the new directory name
-4. Update the console script entry point under `[project.scripts]`
-5. Update `[tool.coverage.run]` source, `[tool.ruff.lint.isort]` known-local-folder
-6. Update env-var prefixes (`CLI_APP_*`) in `ConsoleConfig`, `LogConfig`, and `Settings`
-7. Do a global find-and-replace of `cli_app.` imports to your new package name
+1. Rename `src/cli_app/` to `src/my_tool/`. Replace `cli_app` in imports throughout `src/`
+   and `tests/`, including mock targets and the metadata test. Update `module-name` under
+   `[tool.uv.build-backend]`, `[tool.coverage.run].source`, and
+   `[tool.ruff.lint.isort].known-local-folder` in `pyproject.toml`.
+2. Set `[project].name` and `[project.scripts]` in `pyproject.toml`. Point the script at
+   `my_tool.main:main`. Update the project description, authors, keywords, and other metadata.
+3. Change the `CLI_APP_` environment prefixes in `src/my_tool/core/settings.py`,
+   `src/my_tool/utils/console.py`, and `src/my_tool/utils/log.py`. Update `.env.example`,
+   README examples, and tests using those variables. Adjust the default log directory and
+   filename in `src/my_tool/utils/log.py`.
+4. Update `mkdocs.yml` (`site_name`, repository links, and the source watch path) and
+   `docs/gen_ref_pages.py`, which scans the import package for API pages. Update names and
+   links in README, docs, and `AGENTS.md`. If you host docs on GitHub Pages, configure Pages
+   Source as **GitHub Actions** and allow release tags in the `github-pages` environment.
+5. Regenerate the lockfile with `uv lock`, then run `uv sync --all-groups --locked`,
+   `uv run pytest`, `uv build`, and `uv run --group docs mkdocs build`. Check that
+   `uv run my-tool --help` and `uv run my-tool --version` show the new project identity.
+
+The release workflow only deploys documentation. Add a separate publishing workflow if the
+new project should publish packages to PyPI.

@@ -58,10 +58,9 @@ uv run pytest tests/path/to/test.py     # single file
 ```bash
 uv run --group docs mkdocs serve      # live preview at http://127.0.0.1:8000
 uv run --group docs mkdocs build      # build static site to site/
-uv run --group docs mkdocs gh-deploy  # deploy to GitHub Pages (gh-pages branch)
 ```
 
-Source is in `docs/`. Powered by [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) with `mkdocstrings` for API reference generation.
+Source is in `docs/`. Powered by [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) with `mkdocstrings` for API reference generation. The release workflow deploys the site to GitHub Pages from version tags or a manual workflow run.
 
 ## Global CLI Flags
 
@@ -168,14 +167,17 @@ src/
 
 Dependabot opens weekly PRs for both pip packages and GitHub Actions.
 
-`.github/workflows/release.yml` runs on version tags (`v*`):
+`.github/workflows/release.yml` runs on version tags (`v*`) or via `workflow_dispatch`:
 
 | Job | What it does |
 |-----|-------------|
-| `publish` | builds the package and publishes to PyPI via OIDC trusted publisher (no secrets) |
-| `docs` | deploys MkDocs to GitHub Pages |
+| `docs` | builds MkDocs and deploys it to GitHub Pages via GitHub Actions |
 
-PyPI publishing uses keyless OIDC — configure a trusted publisher on PyPI pointing to this repo with workflow file `release.yml`.
+The workflow does not publish the package to PyPI. Set Pages Source to **GitHub Actions** and allow `v*` tags in the `github-pages` environment for tag-triggered deployments.
+
+## Using This Template
+
+The distribution, import package, and CLI command have separate names. Follow the [renaming checklist](https://rwrotson.github.io/typer-template/notes/#renaming-the-template) when copying this template into a new project.
 
 ## Author
 

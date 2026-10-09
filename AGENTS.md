@@ -14,7 +14,7 @@ This project uses [uv](https://docs.astral.sh/uv/) for package management.
 
 ```bash
 # Install dependencies
-uv sync --all-extras
+uv sync --all-groups --locked
 
 # Run the CLI
 uv run cli-app
@@ -141,4 +141,4 @@ Before `setup_logging()` is called (e.g. in tests), structlog defaults to stderr
 
 ### Type Checking
 
-MyPy runs in strict mode (`disallow_untyped_defs = true`). All new code must have complete type annotations. Python 3.13+ union syntax (`X | Y`) is preferred over `Optional[X]`.
+MyPy runs in strict mode (`disallow_untyped_defs = true`). All new code must have complete type annotations. Python 3.14 supports union syntax (`X | Y`), which is preferred over `Optional[X]`.
