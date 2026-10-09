@@ -52,7 +52,7 @@ class Meta:
                     dist_dir = Path(url.removeprefix("file://"))
                     if pkg_file.is_relative_to(dist_dir):
                         return dist.name
-                except (ValueError, TypeError):
+                except ValueError, TypeError:
                     continue
         return None
 

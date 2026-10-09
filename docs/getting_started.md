@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Python 3.13+
+- Python 3.14+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## Installation
@@ -10,7 +10,7 @@
 ```bash
 git clone <repo-url>
 cd typer-template
-uv sync --all-extras
+uv sync --all-groups --locked
 uv run pre-commit install
 ```
 
@@ -121,6 +121,7 @@ from .my_command import app as my_command_app
 
 ```python
 from cli_app.cli.commands import my_command_app
+
 app.add_typer(my_command_app, name="my-command")
 ```
 
@@ -130,6 +131,7 @@ Use `read_stdin_if_piped()` to accept piped input as a fallback when an argument
 
 ```python
 from cli_app.utils.stdin import read_stdin_if_piped
+
 
 @app.command()
 def process(ctx: Context, text: str | None = None) -> None:

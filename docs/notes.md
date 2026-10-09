@@ -34,9 +34,9 @@ Commands read `ctx.obj["output_format"]` (set by the root callback) and call `re
 
 ```python
 render_output(
-    {"key": value},           # data for JSON mode
+    {"key": value},  # data for JSON mode
     fmt,
-    text_render=lambda: console.print(...),   # callable for text mode
+    text_render=lambda: console.print(...),  # callable for text mode
 )
 ```
 

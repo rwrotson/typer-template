@@ -17,14 +17,14 @@ A template for building Python CLI applications with [Typer](https://typer.tiang
 
 ## Requirements
 
-- Python 3.13+
+- Python 3.14+
 - uv
 
 ## Getting Started
 
 ```bash
 # Clone the repo and install dependencies
-uv sync --all-extras
+uv sync --all-groups --locked
 
 # Run the CLI
 uv run cli-app --help
