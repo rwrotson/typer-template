@@ -11,6 +11,7 @@
 git clone <repo-url>
 cd typer-template
 uv sync --all-groups --locked
+# Installs both pre-commit checks and the Conventional Commits commit-msg hook
 uv run pre-commit install
 ```
 

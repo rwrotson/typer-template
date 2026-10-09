@@ -29,7 +29,7 @@ uv sync --all-groups --locked
 # Run the CLI
 uv run cli-app --help
 
-# Install pre-commit hooks (enforces Conventional Commits)
+# Install pre-commit and commit-msg hooks (enforces Conventional Commits)
 uv run pre-commit install
 ```
 
