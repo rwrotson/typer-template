@@ -116,7 +116,7 @@ Console and logging behaviour can be configured via environment variables or a `
 | Prefix | Controls |
 |--------|----------|
 | `CLI_APP_CONSOLE_*` | Rich console settings (theme, colors, width) |
-| `CLI_APP_LOG_*` | Log level, file rotation, JSON output |
+| `CLI_APP_LOG_*` | Log level, file rotation, JSON output, user log directory |
 
 ```env
 CLI_APP_LOG_LEVEL=DEBUG

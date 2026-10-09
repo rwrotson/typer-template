@@ -23,7 +23,7 @@ Logging is built on [structlog](https://www.structlog.org/) bridged through stdl
 - **First-party loggers** use `structlog.get_logger()` with keyword-argument context binding (`log.info("event", key=value)`).
 - **Third-party stdlib loggers** (e.g. `httpx`, `sqlalchemy`) are automatically picked up by the same handler chain.
 - **Console output** uses `ConsoleRenderer` (colourised, human-readable) by default, switching to `JSONRenderer` when `CLI_APP_LOG_USE_JSON_FORMATTER=true`.
-- **File output** always writes JSON for structured log analysis.
+- **File output** always writes JSON for structured log analysis. By default, logs are stored in the platform-specific user log directory; `CLI_APP_LOG_DIR` overrides it.
 - `structlog.contextvars.bind_contextvars()` lets you attach fields that appear on every subsequent log line within a request or command invocation.
 
 `setup_logging()` in `utils/log.py` must be called once at startup (`main.py`) before any logger is used. Before it is called (e.g. during tests), structlog is configured to output to stderr via `PrintLoggerFactory` so it never pollutes stdout.

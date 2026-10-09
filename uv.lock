@@ -236,6 +236,7 @@ name = "cli-app"
 version = "0.4.4"
 source = { editable = "." }
 dependencies = [
+    { name = "platformdirs" },
     { name = "pydantic-settings" },
     { name = "structlog" },
     { name = "typer" },
@@ -264,6 +265,7 @@ docs = [
 
 [package.metadata]
 requires-dist = [
+    { name = "platformdirs", specifier = ">=4.12.4" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
     { name = "structlog", specifier = ">=26.1.0" },
     { name = "typer", specifier = ">=0.27.3" },

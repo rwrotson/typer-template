@@ -2,12 +2,20 @@ import logging
 import logging.handlers
 import sys
 from pathlib import Path
+from typing import TextIO
 
 import structlog
+from platformdirs import user_log_path
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from cli_app.utils.misc import find_project_root
+
+class _AppFileHandler(logging.handlers.RotatingFileHandler):
+    """File handler owned by this application."""
+
+
+class _AppConsoleHandler(logging.StreamHandler[TextIO]):
+    """Console handler owned by this application."""
 
 
 class LogConfig(BaseSettings):
@@ -16,7 +24,7 @@ class LogConfig(BaseSettings):
     level: int = logging.INFO
     console_level: int = logging.DEBUG
     file_level: int = logging.INFO
-    dir: Path = find_project_root() / "logs"
+    dir: Path = user_log_path("cli-app")
     file_name: str = "cli-app.log"
     file_max_bytes: int = 4 * 1024 * 1024
     file_backup_count: int = 5
@@ -95,23 +103,25 @@ def setup_logging(config: LogConfig | None = None) -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(config.level)
 
-    existing_types = {type(h) for h in root_logger.handlers}
+    fh = _AppFileHandler(
+        filename=log_file_path,
+        maxBytes=config.file_max_bytes,
+        backupCount=config.file_backup_count,
+    )
+    fh.setLevel(config.file_level)
+    fh.setFormatter(file_formatter)
 
-    if logging.handlers.RotatingFileHandler not in existing_types:
-        fh = logging.handlers.RotatingFileHandler(
-            filename=log_file_path,
-            maxBytes=config.file_max_bytes,
-            backupCount=config.file_backup_count,
-        )
-        fh.setLevel(config.file_level or config.level)
-        fh.setFormatter(file_formatter)
-        root_logger.addHandler(fh)
+    sh = _AppConsoleHandler(sys.stderr)
+    sh.setLevel(config.console_level)
+    sh.setFormatter(console_formatter)
 
-    if logging.StreamHandler not in existing_types:
-        sh = logging.StreamHandler(sys.stderr)
-        sh.setLevel(config.console_level or config.level)
-        sh.setFormatter(console_formatter)
-        root_logger.addHandler(sh)
+    for handler in root_logger.handlers[:]:
+        if isinstance(handler, (_AppFileHandler, _AppConsoleHandler)):
+            root_logger.removeHandler(handler)
+            handler.close()
+
+    root_logger.addHandler(fh)
+    root_logger.addHandler(sh)
 
     structlog.configure(
         processors=[*shared_processors, structlog.stdlib.ProcessorFormatter.wrap_for_formatter],
