@@ -75,7 +75,7 @@ def test_output_format_json_includes_option_value() -> None:
         app, ["--output-format", "json", "command", "example-command", "hello", "--option", "7"]
     )
     assert result.exit_code == 0
-    assert json.loads(result.stdout)["option"] == 7  # noqa: PLR2004
+    assert json.loads(result.stdout)["option"] == 7
 
 
 def test_json_stdout_stays_clean_with_verbose_logging(tmp_path: Path) -> None:

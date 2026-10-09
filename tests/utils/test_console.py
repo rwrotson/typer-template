@@ -39,5 +39,5 @@ def test_console_config_env_var_override(monkeypatch: pytest.MonkeyPatch) -> Non
 def test_console_config_accepts_env_example(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("CLI_APP_CONSOLE_WIDTH", raising=False)
     env_example = Path(__file__).resolve().parents[2] / ".env.example"
-    config = ConsoleConfig(_env_file=env_example)  # type: ignore[call-arg]
+    config = ConsoleConfig(_env_file=env_example)
     assert config.width is None

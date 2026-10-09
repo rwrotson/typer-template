@@ -153,7 +153,7 @@ src/
 |------|-------------|
 | ruff format | formatting check |
 | ruff lint | linting |
-| mypy | strict type checking for source and tests |
+| mypy | strict type checking for source, tests, and docs scripts |
 | pytest | parallel tests, 95% branch coverage enforced |
 | uv build | package build check |
 | mkdocs build | documentation build check |

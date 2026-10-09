@@ -51,7 +51,7 @@ Tasks are available via taskipy — run with `uv run task <name>`:
 ```bash
 uv run task lint        # ruff check .
 uv run task fmt         # ruff format .
-uv run task typecheck   # mypy src/ tests/
+uv run task typecheck   # mypy (strict: src, tests, docs)
 uv run task test        # pytest (parallel, 95% branch coverage enforced)
 uv run task test-fast   # pytest without coverage, parallel, random order
 uv run task audit       # pip-audit dependency audit

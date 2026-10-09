@@ -28,7 +28,7 @@ jobs:
         run: uv run ruff check .
 
       - name: Type check
-        run: uv run mypy src/ tests/
+        run: uv run mypy
 
       - name: Run tests
         run: uv run task test
