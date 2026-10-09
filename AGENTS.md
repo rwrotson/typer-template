@@ -56,13 +56,21 @@ uv run --group docs mkdocs build
 
 ## CI/CD
 
-`.github/workflows/ci.yml` triggers on push/PR to `main` and `dev`. One job:
+`.github/workflows/ci.yml` triggers on push/PR to `main` and `dev` and is reusable via
+`workflow_call`. Workflow permissions are `contents: read`; actions are pinned to commit SHAs.
+Parallel jobs:
 
-- **`ci`** — ruff format check → ruff lint → mypy (source, tests, docs scripts) → pytest → package and docs builds → pip-audit → trivy (CRITICAL/HIGH CVE scan).
+- **`quality`** — `poe fmt-check`, `poe lint`, `poe typecheck`.
+- **`test`** — `poe test` (95% branch coverage).
+- **`lowest`** — installs the lowest allowed direct dependencies (`--resolution lowest-direct`)
+  and runs pytest; it checks the declared lower bounds, which the lock does not.
+- **`build`** — `uv build`, `mkdocs build --strict`, `poe audit`, trivy filesystem scan
+  (CRITICAL/HIGH).
 
-`.github/workflows/release.yml` triggers on version tags (`v*`) and manual `workflow_dispatch`. One job:
+`.github/workflows/release.yml` triggers on version tags (`v*`) and manual `workflow_dispatch`.
+It runs CI first, then:
 
-- **`docs`** — builds the site with `mkdocs build` and deploys it to **GitHub Pages** via
+- **`docs`** — builds the site with `mkdocs build --strict` and deploys it to **GitHub Pages** via
   `actions/upload-pages-artifact` + `actions/deploy-pages` (the `github-pages` environment).
   Permissions: `pages: write`, `id-token: write`, `contents: read`. There is **no PyPI publish**.
 
@@ -71,7 +79,8 @@ environment must allow the `v*` tag (Settings → Environments → Deployment br
 restriction, or a `v*` rule) — otherwise the tag-triggered deploy is blocked. Site:
 https://rwrotson.github.io/typer-template/
 
-Dependabot opens weekly PRs for pip packages and GitHub Actions (`.github/dependabot.yml`).
+Dependabot opens weekly grouped PRs for uv dependencies (`uv.lock`), GitHub Actions, and pre-commit
+hooks (`.github/dependabot.yml`).
 
 ## Architecture
 

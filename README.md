@@ -146,22 +146,18 @@ src/
 
 ## CI/CD
 
-`.github/workflows/ci.yml` runs on every push/PR to `main` and `dev`:
+`.github/workflows/ci.yml` runs on every push/PR to `main` and `dev`. Actions are pinned to commit SHAs.
 
-| Step | What it does |
-|------|-------------|
-| ruff format | formatting check |
-| ruff lint | linting |
-| mypy | strict type checking for source, tests, and docs scripts |
-| pytest | parallel tests, 95% branch coverage enforced |
-| uv build | package build check |
-| mkdocs build | documentation build check |
-| pip-audit | known CVE check for dependencies |
-| trivy | filesystem vulnerability scan (CRITICAL/HIGH, fails build) |
+| Job | What it does |
+|-----|-------------|
+| `quality` | ruff format check, ruff lint, strict mypy |
+| `test` | parallel tests in random order, 95% branch coverage enforced |
+| `lowest` | tests against the lowest allowed direct dependencies |
+| `build` | package build, `mkdocs build --strict`, pip-audit, trivy filesystem scan (CRITICAL/HIGH) |
 
-Dependabot opens weekly PRs for both pip packages and GitHub Actions.
+Dependabot opens weekly grouped PRs for uv dependencies, GitHub Actions, and pre-commit hooks.
 
-`.github/workflows/release.yml` runs on version tags (`v*`) or via `workflow_dispatch`:
+`.github/workflows/release.yml` runs on version tags (`v*`) or via `workflow_dispatch`. It runs CI first, then:
 
 | Job | What it does |
 |-----|-------------|
