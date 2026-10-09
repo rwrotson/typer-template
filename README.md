@@ -74,6 +74,8 @@ The root app exposes flags available to every subcommand:
 | `--version` | `-v` | — | Print version and dependency list, then exit |
 | `--authors` | `-A` | — | Print author contacts, then exit |
 
+JSON output is written to stdout; diagnostics are written to stderr.
+
 ```bash
 cli-app --verbose command example-command hello
 cli-app --output-format json command example-command hello

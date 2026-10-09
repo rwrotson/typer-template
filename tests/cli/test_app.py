@@ -1,12 +1,15 @@
 import json
+import os
+import subprocess
+import sys
 from io import StringIO
+from pathlib import Path
 
 import pytest
 from rich.console import Console
 from typer.testing import CliRunner
 
 import cli_app.cli.commands.command as command_module
-import cli_app.utils.log  # noqa: F401  # Configure structlog's stderr fallback for direct app use.
 from cli_app.cli.app import app
 
 runner = CliRunner()
@@ -44,6 +47,8 @@ def test_example_command_uses_console_at_invocation(monkeypatch: pytest.MonkeyPa
 def test_example_command_missing_argument_fails() -> None:
     result = runner.invoke(app, ["command", "example-command"])
     assert result.exit_code != 0
+    assert result.stdout == ""
+    assert "argument required" in result.stderr
 
 
 def test_example_command_with_integer_option() -> None:
@@ -60,7 +65,7 @@ def test_verbose_flag_exits_zero(flag: str) -> None:
 def test_output_format_json_produces_valid_json() -> None:
     result = runner.invoke(app, ["--output-format", "json", "command", "example-command", "hello"])
     assert result.exit_code == 0
-    data = json.loads(result.output)
+    data = json.loads(result.stdout)
     assert data["argument"] == "hello"
     assert data["option"] is None
 
@@ -70,13 +75,43 @@ def test_output_format_json_includes_option_value() -> None:
         app, ["--output-format", "json", "command", "example-command", "hello", "--option", "7"]
     )
     assert result.exit_code == 0
-    assert json.loads(result.output)["option"] == 7  # noqa: PLR2004
+    assert json.loads(result.stdout)["option"] == 7  # noqa: PLR2004
+
+
+def test_json_stdout_stays_clean_with_verbose_logging(tmp_path: Path) -> None:
+    env = {**os.environ, "CLI_APP_LOG_DIR": str(tmp_path)}
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from cli_app.main import main; main()",
+            "--verbose",
+            "--output-format",
+            "json",
+            "command",
+            "example-command",
+            "hello",
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["argument"] == "hello"
+    assert "example_command invoked" in result.stderr
 
 
 def test_output_format_text_is_default() -> None:
     result = runner.invoke(app, ["command", "example-command", "hello"])
     assert result.exit_code == 0
-    assert "hello" in result.output
+    assert "hello" in result.stdout
+
+
+def test_output_format_text_preserves_rich_markup_in_user_input() -> None:
+    result = runner.invoke(app, ["command", "example-command", "[red]hello[/red]"])
+    assert result.exit_code == 0
+    assert "[red]hello[/red]" in result.stdout
 
 
 def test_output_format_invalid_value_fails() -> None:

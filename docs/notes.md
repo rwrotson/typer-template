@@ -20,13 +20,13 @@ module-root = "src"
 
 Logging is built on [structlog](https://www.structlog.org/) bridged through stdlib's `logging` module via `ProcessorFormatter`. This means:
 
-- **First-party loggers** use `structlog.get_logger()` with keyword-argument context binding (`log.info("event", key=value)`).
+- **First-party loggers** use `get_logger()` from `utils/log.py` with keyword-argument context binding (`log.info("event", key=value)`).
 - **Third-party stdlib loggers** (e.g. `httpx`, `sqlalchemy`) are automatically picked up by the same handler chain.
 - **Console output** uses `ConsoleRenderer` (colourised, human-readable) by default, switching to `JSONRenderer` when `CLI_APP_LOG_USE_JSON_FORMATTER=true`.
 - **File output** always writes JSON for structured log analysis. By default, logs are stored in the platform-specific user log directory; `CLI_APP_LOG_DIR` overrides it.
 - `structlog.contextvars.bind_contextvars()` lets you attach fields that appear on every subsequent log line within a request or command invocation.
 
-`setup_logging()` in `utils/log.py` must be called once at startup (`main.py`) before any logger is used. Before it is called (e.g. during tests), structlog is configured to output to stderr via `PrintLoggerFactory` so it never pollutes stdout.
+`setup_logging()` in `utils/log.py` is called at startup (`main.py`). Importing `get_logger()` also installs the early stderr fallback, so direct Typer app use cannot send debug logs to JSON stdout before startup.
 
 ## Output Format Pattern
 
@@ -40,7 +40,7 @@ render_output(
 )
 ```
 
-This keeps JSON and human output co-located in the command while staying testable independently.
+This keeps JSON and human output co-located in the command while staying testable independently. JSON data goes to stdout; diagnostics go to stderr.
 
 ## Stdin Piping Pattern
 

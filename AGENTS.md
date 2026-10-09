@@ -119,7 +119,7 @@ To add a new command group: create a file in `src/cli_app/cli/commands/`, define
 
 ### Logging (structlog)
 
-`setup_logging()` configures structlog bridged through stdlib via `ProcessorFormatter`. Both first-party (`structlog.get_logger()`) and third-party stdlib loggers share the same handler chain. Console output uses `ConsoleRenderer` by default; set `CLI_APP_LOG_USE_JSON_FORMATTER=true` for JSON. File output is always JSON.
+`setup_logging()` configures structlog bridged through stdlib via `ProcessorFormatter`. First-party commands use `get_logger()` from `cli_app.utils.log` so early logs go to stderr; third-party stdlib loggers share the same handler chain. Console output uses `ConsoleRenderer` by default; set `CLI_APP_LOG_USE_JSON_FORMATTER=true` for JSON. File output is always JSON.
 
 Use `structlog.contextvars.bind_contextvars(key=value)` to attach context that appears on every log line.
 

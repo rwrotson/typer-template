@@ -2,7 +2,7 @@ import logging
 import logging.handlers
 import sys
 from pathlib import Path
-from typing import TextIO
+from typing import TextIO, cast
 
 import structlog
 from platformdirs import user_log_path
@@ -129,6 +129,11 @@ def setup_logging(config: LogConfig | None = None) -> None:
         wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=True,
     )
+
+
+def get_logger() -> structlog.typing.FilteringBoundLogger:
+    """Return a logger after installing the stderr fallback for early calls."""
+    return cast(structlog.typing.FilteringBoundLogger, structlog.get_logger())
 
 
 # Ensure structlog never writes to stdout before setup_logging() is called.

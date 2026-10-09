@@ -88,26 +88,27 @@ Bump type is inferred from commits: `fix:` → patch · `feat:` → minor · `fe
 1. Create `src/cli_app/cli/commands/my_command.py`:
 
 ```python
-import structlog
+from rich.markup import escape
 from typer import Context, Typer
 
 from cli_app.utils.console import get_console
+from cli_app.utils.log import get_logger
 from cli_app.utils.output import OutputFormat, render_output
 
 app = Typer()
-console = get_console()
-log = structlog.get_logger()
+log = get_logger()
 
 
 @app.command()
 def my_action(ctx: Context, name: str) -> None:
     """Do something."""
+    console = get_console()
     log.debug("my_action called", name=name)
     fmt = ctx.obj.get("output_format", OutputFormat.text) if ctx.obj else OutputFormat.text
     render_output(
         {"name": name},
         fmt,
-        text_render=lambda: console.print(f"Hello, [bold]{name}[/bold]!"),
+        text_render=lambda: console.print(f"Hello, [bold]{escape(name)}[/bold]!"),
     )
 ```
 
