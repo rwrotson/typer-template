@@ -28,13 +28,14 @@ module-root = "src"
 
 ## Output Format Pattern
 
-Commands read `ctx.obj["output_format"]` from the root callback and call `render_output()`:
+Commands read the `AppContext` stored by the root callback and call `render_output()`:
 
 ```python
+app_context = get_app_context(ctx)
 render_output(
     {"key": value},
-    fmt,
-    text_render=lambda: console.print(...),
+    app_context.output_format,
+    text_render=lambda: app_context.console.print(...),
 )
 ```
 
@@ -45,12 +46,10 @@ JSON output goes to stdout; diagnostics go to stderr. In text mode, `render_outp
 `read_stdin_if_piped()` returns `None` for a TTY and the available content for piped stdin:
 
 ```python
-resolved = argument if argument is not None else read_stdin_if_piped()
-if not resolved:
-    raise Exit(1)
+result = run_example(argument if argument is not None else read_stdin_if_piped(), option)
 ```
 
-`CliRunner` provides non-TTY stdin in tests, even when no input is passed. The empty-string check rejects that case.
+`CliRunner` provides non-TTY stdin in tests, even when no input is passed. `run_example()` rejects the resulting empty string with `InvalidInputError`.
 
 ## Commitizen & Versioning
 

@@ -5,9 +5,13 @@ from typer import Context, Option, Typer
 
 from cli_app.cli.callbacks import meta as meta_callbacks
 from cli_app.cli.commands import command_app, completion_app
+from cli_app.cli.context import AppContext
+from cli_app.cli.errors import ServiceErrorGroup
+from cli_app.config import load_settings
+from cli_app.utils.console import get_console
 from cli_app.utils.output import OutputFormat
 
-app = Typer()
+app = Typer(cls=ServiceErrorGroup)
 app.add_typer(command_app, name="command")
 app.add_typer(completion_app, name="completion")
 
@@ -52,9 +56,10 @@ def main(
         ),
     ] = OutputFormat.text,
 ) -> None:
-    """Set the output format and logging level for CLI commands."""
-    ctx.ensure_object(dict)
-    ctx.obj["output_format"] = output_format
+    """Create the invocation context and set the logging level for CLI commands."""
+    ctx.obj = AppContext(
+        settings=load_settings(), console=get_console(), output_format=output_format
+    )
     if verbose:
         root = logging.getLogger()
         root.setLevel(logging.DEBUG)

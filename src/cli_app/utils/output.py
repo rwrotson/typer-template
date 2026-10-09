@@ -20,6 +20,11 @@ def echo_json(data: dict[str, Any] | list[Any]) -> None:
     typer.echo(json.dumps(data, indent=2, default=str))
 
 
+def error_json(error_type: str, message: str) -> None:
+    """Write an error object as JSON to stderr."""
+    typer.echo(json.dumps({"error": {"type": error_type, "message": message}}), err=True)
+
+
 def render_output(
     data: dict[str, Any] | list[Any],
     fmt: OutputFormat,

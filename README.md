@@ -35,7 +35,7 @@ uv run pre-commit install
 Run development tasks with [poethepoet](https://poethepoet.natn.io/):
 
 ```bash
-uv run poe check       # format check, lint, type check, tests with coverage
+uv run poe check       # format check, lint, import contracts, type check, tests with coverage
 uv run poe fmt
 uv run poe test-fast
 uv run poe docs
@@ -129,11 +129,14 @@ src/
     ├── main.py              # entry point
     ├── cli/
     │   ├── app.py           # root Typer app (--verbose, --output-format, --version, --authors)
+    │   ├── context.py       # AppContext stored in ctx.obj
+    │   ├── errors.py        # ServiceError → stderr message and exit code
     │   ├── callbacks/       # eager option callbacks (--version, --authors)
     │   └── commands/
     │       ├── command.py   # example command group (stdin + output-format patterns)
     │       └── completion.py # shell completion sub-app
     ├── config/              # Settings with console and log sections
+    ├── services/            # use cases and ServiceError; no Typer, Rich, or settings
     └── utils/
         ├── console.py       # singleton Rich Console
         ├── log.py           # structlog setup (ConsoleRenderer dev / JSON prod)
@@ -152,7 +155,7 @@ src/
 
 | Job | What it does |
 |-----|-------------|
-| `quality` | ruff format check, ruff lint, strict mypy |
+| `quality` | ruff format check, ruff lint, import-linter contracts, strict mypy |
 | `test` | parallel tests in random order, 95% branch coverage enforced |
 | `lowest` | tests against the lowest allowed direct dependencies |
 | `build` | package build, `mkdocs build --strict`, pip-audit, trivy filesystem scan (CRITICAL/HIGH) |

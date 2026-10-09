@@ -25,6 +25,7 @@ jobs:
       - run: uv sync --locked --all-groups
       - run: uv run --no-sync poe fmt-check
       - run: uv run --no-sync poe lint
+      - run: uv run --no-sync poe lint-imports
       - run: uv run --no-sync poe typecheck
 
   test:

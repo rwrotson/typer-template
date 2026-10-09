@@ -1,12 +1,12 @@
 from typing import Annotated
 
-import typer
 from rich.markup import escape
 from typer import Argument, Context, Option, Typer
 
-from cli_app.utils.console import get_console
+from cli_app.cli.context import get_app_context
+from cli_app.services.example import run_example
 from cli_app.utils.log import get_logger
-from cli_app.utils.output import OutputFormat, render_output
+from cli_app.utils.output import render_output
 from cli_app.utils.stdin import read_stdin_if_piped
 
 app = Typer()
@@ -33,19 +33,15 @@ def example_command(
     ] = None,
 ) -> None:
     """Display an argument and optional integer in text or JSON."""
-    console = get_console()
-    resolved = argument if argument is not None else read_stdin_if_piped()
-    if not resolved:
-        typer.echo("Error: argument required (or pipe input via stdin).", err=True)
-        raise typer.Exit(1)
+    app_context = get_app_context(ctx)
+    result = run_example(argument if argument is not None else read_stdin_if_piped(), option)
 
-    log.debug("example_command invoked", argument=resolved, option=option)
+    log.debug("example_command invoked", argument=result.argument, option=result.option)
 
-    fmt = ctx.obj.get("output_format", OutputFormat.text) if ctx.obj else OutputFormat.text
     render_output(
-        {"argument": resolved, "option": option},
-        fmt,
-        text_render=lambda: console.print(
-            f"argument=[bold]{escape(resolved)}[/bold] option={option}"
+        {"argument": result.argument, "option": result.option},
+        app_context.output_format,
+        text_render=lambda: app_context.console.print(
+            f"argument=[bold]{escape(result.argument)}[/bold] option={result.option}"
         ),
     )

@@ -16,7 +16,7 @@ uv run pre-commit install
 
 `pre-commit install` sets up three Git hooks:
 
-- `pre-commit` — file hygiene checks, `uv lock` check, actionlint, ruff (with `--fix`), mypy
+- `pre-commit` — file hygiene checks, `uv lock` check, actionlint, ruff (with `--fix`), import-linter, mypy
 - `commit-msg` — Conventional Commit format (Commitizen)
 - `pre-push` — pytest without coverage
 
@@ -57,10 +57,11 @@ uv run cli-app completion show
 Tasks are available via [poethepoet](https://poethepoet.natn.io/) — run with `uv run poe <name>`:
 
 ```bash
-uv run poe check       # fmt-check, lint, typecheck, test
+uv run poe check       # fmt-check, lint, lint-imports, typecheck, test
 uv run poe fmt         # ruff format .
 uv run poe fmt-check   # ruff format --check .
 uv run poe lint        # ruff check .
+uv run poe lint-imports # import-linter layer contracts
 uv run poe typecheck   # mypy (strict: src, tests, docs)
 uv run poe test        # pytest (parallel, 95% branch coverage enforced)
 uv run poe test-fast   # pytest without coverage, parallel, random order
@@ -90,40 +91,53 @@ Bump type is inferred from commits: `fix:` → patch · `feat:` → minor · `fe
 
 ## Adding a Command Group
 
-1. Create `src/cli_app/cli/commands/my_command.py`:
+See the [architecture guide](architecture.md) for the layers and error handling.
+
+1. Create the use case in `src/cli_app/services/greeting.py`:
+
+```python
+from cli_app.services.errors import InvalidInputError
+
+
+def greet(name: str) -> str:
+    """Build a greeting for a non-empty name."""
+    if not name.strip():
+        raise InvalidInputError("name must not be empty")
+    return f"Hello, {name}!"
+```
+
+2. Create the command in `src/cli_app/cli/commands/my_command.py`:
 
 ```python
 from rich.markup import escape
 from typer import Context, Typer
 
-from cli_app.utils.console import get_console
-from cli_app.utils.log import get_logger
-from cli_app.utils.output import OutputFormat, render_output
+from cli_app.cli.context import get_app_context
+from cli_app.services.greeting import greet
+from cli_app.utils.output import render_output
 
 app = Typer()
-log = get_logger()
 
 
 @app.command()
 def my_action(ctx: Context, name: str) -> None:
     """Greet a named user in text or JSON."""
-    console = get_console()
-    log.debug("my_action called", name=name)
-    fmt = ctx.obj.get("output_format", OutputFormat.text) if ctx.obj else OutputFormat.text
+    app_context = get_app_context(ctx)
+    message = greet(name)
     render_output(
-        {"name": name},
-        fmt,
-        text_render=lambda: console.print(f"Hello, [bold]{escape(name)}[/bold]!"),
+        {"message": message},
+        app_context.output_format,
+        text_render=lambda: app_context.console.print(escape(message)),
     )
 ```
 
-2. Export it from `src/cli_app/cli/commands/__init__.py`:
+3. Export it from `src/cli_app/cli/commands/__init__.py`:
 
 ```python
 from .my_command import app as my_command_app
 ```
 
-3. Register it in `src/cli_app/cli/app.py`:
+4. Register it in `src/cli_app/cli/app.py`:
 
 ```python
 from cli_app.cli.commands import my_command_app
@@ -133,7 +147,7 @@ app.add_typer(my_command_app, name="my-command")
 
 ### Stdin support
 
-Use `read_stdin_if_piped()` to accept piped input as a fallback when an argument is omitted:
+Use `read_stdin_if_piped()` to accept piped input as a fallback when an argument is omitted, and let the use case reject empty input:
 
 ```python
 from cli_app.utils.stdin import read_stdin_if_piped
@@ -141,9 +155,7 @@ from cli_app.utils.stdin import read_stdin_if_piped
 
 @app.command()
 def process(ctx: Context, text: str | None = None) -> None:
-    resolved = text if text is not None else read_stdin_if_piped()
-    if not resolved:
-        raise typer.Exit(1)
+    result = run_use_case(text if text is not None else read_stdin_if_piped())
     ...
 ```
 

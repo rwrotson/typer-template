@@ -40,6 +40,7 @@ dependencies = [
 dev = [
     "commitizen>=4.19.2",
     "emojis>=0.7.0",
+    "import-linter>=2.15",
     "mypy>=2.4.0",
     "poethepoet>=0.48.0",
     "pre-commit>=4.6.2",
@@ -224,16 +225,44 @@ update_changelog_on_bump = true
 major_version_zero = true
 
 
+# IMPORT-LINTER ----------------------------------------------------------------
+[tool.importlinter]
+root_package = "cli_app"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Services stay independent of the CLI, configuration, and output"
+type = "forbidden"
+source_modules = ["cli_app.services"]
+forbidden_modules = [
+    "typer", "click", "rich", "structlog", "pydantic_settings", "platformdirs",
+    "cli_app.cli", "cli_app.config", "cli_app.utils",
+]
+
+[[tool.importlinter.contracts]]
+name = "Configuration has no application dependencies"
+type = "forbidden"
+source_modules = ["cli_app.config"]
+forbidden_modules = ["typer", "rich", "cli_app.cli", "cli_app.services", "cli_app.utils"]
+
+[[tool.importlinter.contracts]]
+name = "Utilities do not depend on commands or use cases"
+type = "forbidden"
+source_modules = ["cli_app.utils"]
+forbidden_modules = ["cli_app.cli", "cli_app.services"]
+
+
 # POETHEPOET -------------------------------------------------------------------
 [tool.poe.tasks]
 fmt = "ruff format ."
 fmt-check = "ruff format --check ."
 lint = "ruff check ."
+lint-imports = "lint-imports"
 typecheck = "mypy"
 test = "pytest --cov"
 test-fast = "pytest"
 docs = "mkdocs serve"
-check = ["fmt-check", "lint", "typecheck", "test"]
+check = ["fmt-check", "lint", "lint-imports", "typecheck", "test"]
 
 [tool.poe.tasks.audit]
 shell = """

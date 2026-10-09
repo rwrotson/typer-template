@@ -9,7 +9,7 @@ import pytest
 from rich.console import Console
 from typer.testing import CliRunner
 
-import cli_app.cli.commands.command as command_module
+import cli_app.cli.app as app_module
 from cli_app.cli.app import app
 
 runner = CliRunner()
@@ -36,7 +36,7 @@ def test_example_command_with_argument_exits_zero() -> None:
 def test_example_command_uses_console_at_invocation(monkeypatch: pytest.MonkeyPatch) -> None:
     output = StringIO()
     console = Console(file=output, force_terminal=False)
-    monkeypatch.setattr(command_module, "get_console", lambda: console)
+    monkeypatch.setattr(app_module, "get_console", lambda: console)
 
     result = runner.invoke(app, ["command", "example-command", "hello"])
 
@@ -46,9 +46,21 @@ def test_example_command_uses_console_at_invocation(monkeypatch: pytest.MonkeyPa
 
 def test_example_command_missing_argument_fails() -> None:
     result = runner.invoke(app, ["command", "example-command"])
-    assert result.exit_code != 0
+    assert result.exit_code == 2
     assert result.stdout == ""
-    assert "argument required" in result.stderr
+    assert result.stderr == "Error: argument required (or pipe input via stdin)\n"
+
+
+def test_example_command_missing_argument_reports_json_error() -> None:
+    result = runner.invoke(app, ["--output-format", "json", "command", "example-command"])
+    assert result.exit_code == 2
+    assert result.stdout == ""
+    assert json.loads(result.stderr) == {
+        "error": {
+            "type": "InvalidInputError",
+            "message": "argument required (or pipe input via stdin)",
+        }
+    }
 
 
 def test_example_command_with_integer_option() -> None:

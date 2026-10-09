@@ -20,10 +20,11 @@ uv sync --all-groups --locked
 uv run cli-app
 
 # Tasks via poethepoet (uv run poe <name>)
-uv run poe check       # fmt-check, lint, typecheck, test
+uv run poe check       # fmt-check, lint, lint-imports, typecheck, test
 uv run poe fmt         # ruff format .
 uv run poe fmt-check   # ruff format --check .
 uv run poe lint        # ruff check .
+uv run poe lint-imports # import-linter layer contracts
 uv run poe typecheck   # mypy (strict: src, tests, docs)
 uv run poe test        # pytest (parallel, 95% branch coverage enforced)
 uv run poe test-fast   # pytest without coverage, parallel, random order
@@ -60,7 +61,7 @@ uv run --group docs mkdocs build
 `workflow_call`. Workflow permissions are `contents: read`; actions are pinned to commit SHAs.
 Parallel jobs:
 
-- **`quality`** — `poe fmt-check`, `poe lint`, `poe typecheck`.
+- **`quality`** — `poe fmt-check`, `poe lint`, `poe lint-imports`, `poe typecheck`.
 - **`test`** — `poe test` (95% branch coverage).
 - **`lowest`** — installs the lowest allowed direct dependencies (`--resolution lowest-direct`)
   and runs pytest; it checks the declared lower bounds, which the lock does not.
@@ -103,23 +104,24 @@ from cli_app.utils.console import get_console
 
 ### Entry Point & Startup
 
-`src/cli_app/main.py` is minimal: calls `setup_logging()`, `get_console()`, then `app()`. The console script entry point is `cli_app.main:main`.
+`src/cli_app/main.py` is minimal: loads `Settings` (invalid configuration exits with code 2), calls `setup_logging(settings.log)`, `get_console()`, then `app()`. The console script entry point is `cli_app.main:main`.
 
 ### CLI Structure
 
 ```
 src/cli_app/cli/app.py          — Root Typer app; registers subcommand groups and global options
+src/cli_app/cli/context.py      — AppContext (settings, console, output format) and get_app_context()
+src/cli_app/cli/errors.py       — ServiceErrorGroup: reports ServiceError on stderr and exits with its code
 src/cli_app/cli/callbacks/      — Eager option callbacks that print metadata and exit
 src/cli_app/cli/commands/       — Subcommand groups; each file creates its own Typer sub-app
+src/cli_app/services/           — Use cases, result types, and ServiceError subclasses
 ```
 
-The root callback (`app.py`) sets the output format before any subcommand runs:
+The root callback (`app.py`) stores an `AppContext` in `ctx.obj` before any subcommand runs; commands read it with `get_app_context(ctx)`. It also adjusts the root logger level when `--verbose` is passed.
 
-- `ctx.obj["output_format"]` is `OutputFormat.text` or `OutputFormat.json` (from `--output-format`).
+Follow the layers in `docs/architecture.md`: commands call use cases in `cli_app.services`; services never import Typer, Rich, structlog, settings, `cli_app.cli`, or `cli_app.utils`. Expected failures raise a `ServiceError` subclass with an `exit_code` instead of `typer.Exit`. import-linter contracts in `pyproject.toml` enforce the boundaries (`uv run poe lint-imports`).
 
-It also adjusts the root logger level when `--verbose` is passed.
-
-To add a new command group: create a file in `src/cli_app/cli/commands/`, define a Typer app, export it from `__init__.py`, then add `app.add_typer(...)` in `src/cli_app/cli/app.py`.
+To add a new command group: put the use case in `src/cli_app/services/`, create a file in `src/cli_app/cli/commands/`, define a Typer app, export it from `__init__.py`, then add `app.add_typer(...)` in `src/cli_app/cli/app.py`.
 
 ### Configuration via Environment Variables
 
