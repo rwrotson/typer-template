@@ -7,7 +7,7 @@ from rich.progress import Progress, ProgressColumn
 from cli_app.utils.console import get_console
 
 
-def generate_progress_bar(
+def generate_progress_bar(  # noqa: PLR0913 - mirrors rich.progress.Progress options
     *columns: str | ProgressColumn,
     console: Literal["internal", "project"] | Console = "project",
     auto_refresh: bool = True,

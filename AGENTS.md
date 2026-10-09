@@ -114,7 +114,7 @@ module-name = "cli_app"
 module-root = "src"
 ```
 
-Internal imports use the `cli_app.` prefix; package `__init__.py` exports may use relative imports:
+Internal imports use the `cli_app.` prefix. Ruff bans relative imports except in package `__init__.py`, which may re-export from sibling modules (`from .module import ...`, never `..`):
 
 ```python
 from cli_app.cli.app import app

@@ -9,7 +9,7 @@ from cli_app.utils.meta import Meta, MetaDict, get_project_meta
 
 
 def test_fallback_meta() -> None:
-    meta = Meta._get_fallback_meta("MyPkg")  # noqa: SLF001
+    meta = Meta._get_fallback_meta("MyPkg")
     assert meta["name"] == "MyPkg (not installed)"
     assert meta["version"] == "0.0.0-dev"
     assert meta["dependencies"] == []
@@ -41,17 +41,17 @@ def test_meta_str_contains_data() -> None:
 
 
 def test_get_installed_dependencies_empty_input() -> None:
-    deps = Meta._get_installed_dependencies([])  # noqa: SLF001
+    deps = Meta._get_installed_dependencies([])
     assert deps == []
 
 
 def test_get_installed_dependencies_known_package() -> None:
-    deps = Meta._get_installed_dependencies(["typer>=0.16.0"])  # noqa: SLF001
+    deps = Meta._get_installed_dependencies(["typer>=0.16.0"])
     assert "typer" in {d["name"].lower() for d in deps}
 
 
 def test_get_installed_dependencies_returns_sorted() -> None:
-    deps = Meta._get_installed_dependencies(["typer>=0.16.0", "pydantic-settings>=2.0"])  # noqa: SLF001
+    deps = Meta._get_installed_dependencies(["typer>=0.16.0", "pydantic-settings>=2.0"])
     names = [d["name"] for d in deps]
     assert names == sorted(names)
 
@@ -79,7 +79,7 @@ def test_find_dist_name_skips_invalid_direct_url(
     ]
     monkeypatch.setattr(metadata, "distributions", lambda: dists)
 
-    assert Meta._find_dist_name_from_direct_url(tmp_path / "pkg.py") == "mine"  # noqa: SLF001
+    assert Meta._find_dist_name_from_direct_url(tmp_path / "pkg.py") == "mine"
 
 
 def test_load_falls_back_to_packages_distributions(monkeypatch: pytest.MonkeyPatch) -> None:

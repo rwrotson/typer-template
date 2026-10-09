@@ -7,7 +7,7 @@ from cli_app.cli.callbacks.meta import summary_cb
 
 
 def test_summary_cb_noop_when_false() -> None:
-    summary_cb(False)
+    summary_cb(v=False)
 
 
 def test_summary_cb_prints_summary_and_exits() -> None:
@@ -20,6 +20,6 @@ def test_summary_cb_prints_summary_and_exits() -> None:
         patch("cli_app.cli.callbacks.meta.get_console", return_value=mock_console),
         pytest.raises(Exit),
     ):
-        summary_cb(True)
+        summary_cb(v=True)
 
     mock_console.print.assert_called_once()
