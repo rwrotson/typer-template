@@ -46,7 +46,7 @@ uv run task audit
 Or run the tools directly:
 
 ```bash
-uv run pytest --no-cov -n auto
+uv run pytest
 uv run pytest tests/path/to/test.py
 ```
 
@@ -154,7 +154,7 @@ src/
 | ruff format | formatting check |
 | ruff lint | linting |
 | mypy | strict type checking for source and tests |
-| pytest | parallel tests, 80% coverage enforced |
+| pytest | parallel tests, 95% branch coverage enforced |
 | uv build | package build check |
 | mkdocs build | documentation build check |
 | pip-audit | known CVE check for dependencies |

@@ -1,4 +1,9 @@
+import json
 import re
+from importlib import metadata
+from pathlib import Path
+
+import pytest
 
 from cli_app.utils.meta import Meta, MetaDict, get_project_meta
 
@@ -53,3 +58,50 @@ def test_get_installed_dependencies_returns_sorted() -> None:
 
 def test_get_project_meta_is_cached() -> None:
     assert get_project_meta() is get_project_meta()
+
+
+class _FakeDist:
+    def __init__(self, name: str, direct_url: str | None) -> None:
+        self.name = name
+        self._direct_url = direct_url
+
+    def read_text(self, _filename: str) -> str | None:
+        return self._direct_url
+
+
+def test_find_dist_name_skips_invalid_direct_url(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    dists = [
+        _FakeDist("broken", "not json"),
+        _FakeDist("other", json.dumps({"url": "file:///elsewhere"})),
+        _FakeDist("mine", json.dumps({"url": f"file://{tmp_path}"})),
+    ]
+    monkeypatch.setattr(metadata, "distributions", lambda: dists)
+
+    assert Meta._find_dist_name_from_direct_url(tmp_path / "pkg.py") == "mine"  # noqa: SLF001
+
+
+def test_load_falls_back_to_packages_distributions(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(Meta, "_find_dist_name_from_direct_url", staticmethod(lambda _: None))
+    monkeypatch.setattr(metadata, "packages_distributions", lambda: {"cli_app": ["cli-app"]})
+
+    assert Meta.load_from_installed_package()["name"] == "cli-app"
+
+
+def test_load_returns_unknown_without_distribution(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(Meta, "_find_dist_name_from_direct_url", staticmethod(lambda _: None))
+    monkeypatch.setattr(metadata, "packages_distributions", dict)
+
+    assert Meta.load_from_installed_package()["name"] == "Unknown (not installed)"
+
+
+def test_load_returns_fallback_for_missing_distribution(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(Meta, "_find_dist_name_from_direct_url", staticmethod(lambda _: "ghost"))
+
+    def missing(name: str) -> None:
+        raise metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(metadata, "metadata", missing)
+
+    assert Meta.load_from_installed_package()["name"] == "ghost (not installed)"

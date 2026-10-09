@@ -23,8 +23,8 @@ uv run cli-app
 uv run task lint        # ruff check .
 uv run task fmt         # ruff format .
 uv run task typecheck   # mypy src/ tests/
-uv run task test        # pytest (parallel, 80% coverage enforced)
-uv run task test-fast   # pytest --no-cov -n auto
+uv run task test        # pytest (parallel, 95% branch coverage enforced)
+uv run task test-fast   # pytest without coverage, parallel, random order
 uv run task audit       # pip-audit
 
 # Or run tools directly
@@ -32,7 +32,7 @@ uv run ruff check .
 uv run ruff format .
 uv run mypy src/ tests/
 uv run pytest
-uv run pytest --no-cov
+uv run pytest --cov
 
 # Install pre-commit hooks
 uv run pre-commit install

@@ -44,6 +44,8 @@ dev = [
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
+    "pytest-randomly>=5.0.0",
+    "pytest-timeout>=2.4.0",
     "pytest-xdist>=3.8.0",
     "ruff>=0.16.10",
     "taskipy>=1.14.1",
@@ -74,18 +76,22 @@ module-root = "src"
 # PYTEST -----------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--maxfail=3 --tb=short --cov --cov-report=term-missing -n auto"
+addopts = "-ra --tb=short --strict-markers --strict-config -n auto"
+xfail_strict = true
+filterwarnings = ["error"]
+timeout = 30
 
 [tool.coverage.run]
 source = ["cli_app"]
 omit = ["*/__init__.py"]
+branch = true
 parallel = true
 concurrency = ["multiprocessing"]
 
 [tool.coverage.report]
 show_missing = true
 skip_covered = false
-fail_under = 80
+fail_under = 95
 
 
 # MYPY -------------------------------------------------------------------------
@@ -255,6 +261,6 @@ major_version_zero = true
 lint = "ruff check ."
 fmt = "ruff format ."
 typecheck = "mypy src/ tests/"
-test = "pytest"
-test-fast = "pytest --no-cov -n auto"
+test = "pytest --cov"
+test-fast = "pytest"
 audit = "uv export --quiet --format requirements-txt --all-groups --locked --no-emit-project --no-hashes --output-file requirements-audit.txt && uv run --locked --with pip-audit pip-audit --requirement requirements-audit.txt --no-deps"

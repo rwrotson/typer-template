@@ -52,16 +52,16 @@ Tasks are available via taskipy — run with `uv run task <name>`:
 uv run task lint        # ruff check .
 uv run task fmt         # ruff format .
 uv run task typecheck   # mypy src/ tests/
-uv run task test        # pytest (parallel, 80% coverage enforced)
-uv run task test-fast   # pytest --no-cov -n auto
+uv run task test        # pytest (parallel, 95% branch coverage enforced)
+uv run task test-fast   # pytest without coverage, parallel, random order
 uv run task audit       # pip-audit dependency audit
 ```
 
 Or run the tools directly:
 
 ```bash
-uv run pytest                        # full suite
-uv run pytest --no-cov               # skip coverage (faster)
+uv run pytest                        # full suite without coverage
+uv run pytest --cov                  # with the coverage gate
 uv run pytest tests/path/to/test.py  # single file
 ```
 

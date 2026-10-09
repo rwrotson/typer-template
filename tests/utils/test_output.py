@@ -30,3 +30,8 @@ def test_render_output_text_calls_render() -> None:
     called: list[bool] = []
     render_output({"a": 1}, OutputFormat.text, text_render=lambda: called.append(True))
     assert called == [True]
+
+
+def test_render_output_text_falls_back_to_console(capsys: pytest.CaptureFixture[str]) -> None:
+    render_output({"answer": 42}, OutputFormat.text)
+    assert "answer" in capsys.readouterr().out
