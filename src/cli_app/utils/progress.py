@@ -20,12 +20,14 @@ def generate_progress_bar(
     disable: bool = False,
     expand: bool = False,
 ) -> Progress:
-    """Build a Rich Progress bar, using the project console by default or an internal one."""
+    """Build a Rich Progress bar with the project, internal, or supplied console."""
     resolved_console: Console | None
     if console == "project":
         resolved_console = get_console()
     elif console == "internal":
         resolved_console = None
+    elif isinstance(console, Console):
+        resolved_console = console
     else:
         raise RuntimeError("Incorrect console type")
 
