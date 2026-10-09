@@ -36,6 +36,22 @@ def test_read_stdin_if_piped_returns_content(monkeypatch: pytest.MonkeyPatch) ->
     assert read_stdin_if_piped() == "piped content"
 
 
+@pytest.mark.parametrize(
+    ("piped", "expected"),
+    [("hi\n", "hi"), ("hi\r\n", "hi"), ("a\nb\n\n", "a\nb"), ("  hi  \n", "  hi  "), ("\n", "")],
+)
+def test_read_stdin_if_piped_strips_trailing_line_breaks(
+    monkeypatch: pytest.MonkeyPatch, piped: str, expected: str
+) -> None:
+    monkeypatch.setattr(sys, "stdin", io.StringIO(piped))
+    assert read_stdin_if_piped() == expected
+
+
+def test_read_stdin_keeps_trailing_newline(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "stdin", io.StringIO("hi\n"))
+    assert read_stdin() == "hi\n"
+
+
 def test_read_stdin_if_piped_returns_none_for_tty(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(sys.stdin, "isatty", lambda: True)
     assert read_stdin_if_piped() is None

@@ -19,5 +19,6 @@ def iter_stdin_lines() -> Iterator[str]:
 
 
 def read_stdin_if_piped() -> str | None:
-    """Return stdin content when piped; ``None`` when stdin is a TTY."""
-    return read_stdin() if is_stdin_piped() else None
+    """Return piped stdin without trailing line breaks; ``None`` when stdin is a TTY."""
+    # Strip like shell command substitution so piped input matches the equivalent argument.
+    return read_stdin().rstrip("\r\n") if is_stdin_piped() else None

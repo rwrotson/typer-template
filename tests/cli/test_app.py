@@ -114,6 +114,19 @@ def test_json_stdout_stays_clean_with_verbose_logging(tmp_path: Path) -> None:
     assert "example_command invoked" in result.stderr
 
 
+def test_example_command_strips_trailing_newline_from_stdin() -> None:
+    result = runner.invoke(
+        app, ["--output-format", "json", "command", "example-command"], input="hello\n"
+    )
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["argument"] == "hello"
+
+
+def test_example_command_rejects_blank_stdin() -> None:
+    result = runner.invoke(app, ["command", "example-command"], input="\n")
+    assert result.exit_code == 2
+
+
 def test_output_format_text_is_default() -> None:
     result = runner.invoke(app, ["command", "example-command", "hello"])
     assert result.exit_code == 0
