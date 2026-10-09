@@ -37,7 +37,7 @@ uv run mypy
 uv run pytest
 uv run pytest --cov
 
-# Install pre-commit hooks
+# Install pre-commit, commit-msg, and pre-push hooks
 uv run pre-commit install
 
 # Run pre-commit on all files

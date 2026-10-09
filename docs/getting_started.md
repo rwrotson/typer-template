@@ -14,6 +14,14 @@ uv sync --all-groups --locked
 uv run pre-commit install
 ```
 
+`pre-commit install` sets up three Git hooks:
+
+- `pre-commit` — file hygiene checks, `uv lock` check, actionlint, ruff (with `--fix`), mypy
+- `commit-msg` — Conventional Commit format (Commitizen)
+- `pre-push` — pytest without coverage
+
+Ruff and mypy run from the locked project environment (`uv run --no-sync`), so hook and CI versions match.
+
 ## Running the CLI
 
 ```bash
