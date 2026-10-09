@@ -46,15 +46,18 @@ uv run cli-app completion show
 
 ## Development Commands
 
-Tasks are available via taskipy — run with `uv run task <name>`:
+Tasks are available via [poethepoet](https://poethepoet.natn.io/) — run with `uv run poe <name>`:
 
 ```bash
-uv run task lint        # ruff check .
-uv run task fmt         # ruff format .
-uv run task typecheck   # mypy (strict: src, tests, docs)
-uv run task test        # pytest (parallel, 95% branch coverage enforced)
-uv run task test-fast   # pytest without coverage, parallel, random order
-uv run task audit       # pip-audit dependency audit
+uv run poe check       # fmt-check, lint, typecheck, test
+uv run poe fmt         # ruff format .
+uv run poe fmt-check   # ruff format --check .
+uv run poe lint        # ruff check .
+uv run poe typecheck   # mypy (strict: src, tests, docs)
+uv run poe test        # pytest (parallel, 95% branch coverage enforced)
+uv run poe test-fast   # pytest without coverage, parallel, random order
+uv run poe docs        # mkdocs serve
+uv run poe audit       # pip-audit over locked dependencies
 ```
 
 Or run the tools directly:

@@ -31,7 +31,7 @@ jobs:
         run: uv run mypy
 
       - name: Run tests
-        run: uv run task test
+        run: uv run poe test
 
       - name: Build package
         run: uv build
@@ -41,7 +41,7 @@ jobs:
 
       - name: Security audit
         # Audit locked project dependencies; the temporary audit environment has extra packages.
-        run: uv run --locked task audit
+        run: uv run --locked poe audit
 
       - name: Scan for vulnerabilities (trivy)
         run: |

@@ -41,6 +41,7 @@ dev = [
     "commitizen>=4.19.2",
     "emojis>=0.7.0",
     "mypy>=2.4.0",
+    "poethepoet>=0.48.0",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
@@ -48,7 +49,6 @@ dev = [
     "pytest-timeout>=2.4.0",
     "pytest-xdist>=3.8.0",
     "ruff>=0.16.10",
-    "taskipy>=1.14.1",
 ]
 docs = [
     "mkdocs-gen-files>=0.6.1",
@@ -224,11 +224,19 @@ update_changelog_on_bump = true
 major_version_zero = true
 
 
-# TASKIPY ---------------------------------------------------------------------
-[tool.taskipy.tasks]
-lint = "ruff check ."
+# POETHEPOET -------------------------------------------------------------------
+[tool.poe.tasks]
 fmt = "ruff format ."
+fmt-check = "ruff format --check ."
+lint = "ruff check ."
 typecheck = "mypy"
 test = "pytest --cov"
 test-fast = "pytest"
-audit = "uv export --quiet --format requirements-txt --all-groups --locked --no-emit-project --no-hashes --output-file requirements-audit.txt && uv run --locked --with pip-audit pip-audit --requirement requirements-audit.txt --no-deps"
+docs = "mkdocs serve"
+check = ["fmt-check", "lint", "typecheck", "test"]
+
+[tool.poe.tasks.audit]
+shell = """
+uv export --quiet --format requirements-txt --all-groups --locked --no-emit-project --no-hashes --output-file requirements-audit.txt
+uv run --locked --with pip-audit pip-audit --requirement requirements-audit.txt --no-deps
+"""

@@ -19,13 +19,16 @@ uv sync --all-groups --locked
 # Run the CLI
 uv run cli-app
 
-# Tasks via taskipy (uv run task <name>)
-uv run task lint        # ruff check .
-uv run task fmt         # ruff format .
-uv run task typecheck   # mypy (strict: src, tests, docs)
-uv run task test        # pytest (parallel, 95% branch coverage enforced)
-uv run task test-fast   # pytest without coverage, parallel, random order
-uv run task audit       # pip-audit
+# Tasks via poethepoet (uv run poe <name>)
+uv run poe check       # fmt-check, lint, typecheck, test
+uv run poe fmt         # ruff format .
+uv run poe fmt-check   # ruff format --check .
+uv run poe lint        # ruff check .
+uv run poe typecheck   # mypy (strict: src, tests, docs)
+uv run poe test        # pytest (parallel, 95% branch coverage enforced)
+uv run poe test-fast   # pytest without coverage, parallel, random order
+uv run poe docs        # mkdocs serve
+uv run poe audit       # pip-audit over locked dependencies
 
 # Or run tools directly
 uv run ruff check .

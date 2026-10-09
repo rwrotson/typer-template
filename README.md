@@ -32,15 +32,14 @@ uv run pre-commit install
 
 ## Development
 
-Run development tasks with [taskipy](https://github.com/taskipy/taskipy):
+Run development tasks with [poethepoet](https://poethepoet.natn.io/):
 
 ```bash
-uv run task lint
-uv run task fmt
-uv run task typecheck
-uv run task test
-uv run task test-fast
-uv run task audit
+uv run poe check       # format check, lint, type check, tests with coverage
+uv run poe fmt
+uv run poe test-fast
+uv run poe docs
+uv run poe audit
 ```
 
 Or run the tools directly:
