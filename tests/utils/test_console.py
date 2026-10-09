@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from rich.console import Console
 
@@ -32,3 +34,10 @@ def test_console_config_env_var_override(monkeypatch: pytest.MonkeyPatch) -> Non
     monkeypatch.setenv("CLI_APP_CONSOLE_WIDTH", str(_CONSOLE_WIDTH))
     config = ConsoleConfig()
     assert config.width == _CONSOLE_WIDTH
+
+
+def test_console_config_accepts_env_example(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("CLI_APP_CONSOLE_WIDTH", raising=False)
+    env_example = Path(__file__).resolve().parents[2] / ".env.example"
+    config = ConsoleConfig(_env_file=env_example)  # type: ignore[call-arg]
+    assert config.width is None

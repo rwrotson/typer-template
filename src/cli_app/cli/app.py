@@ -5,14 +5,11 @@ from typer import Context, Option, Typer
 
 from cli_app.cli.callbacks import meta as meta_callbacks
 from cli_app.cli.commands import command_app, completion_app
-from cli_app.utils.console import get_console
 from cli_app.utils.output import OutputFormat
 
 app = Typer()
 app.add_typer(command_app, name="command")
 app.add_typer(completion_app, name="completion")
-
-console = get_console()
 
 
 @app.callback()

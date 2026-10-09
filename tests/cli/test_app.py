@@ -1,8 +1,12 @@
 import json
+from io import StringIO
 
 import pytest
+from rich.console import Console
 from typer.testing import CliRunner
 
+import cli_app.cli.commands.command as command_module
+import cli_app.utils.log  # noqa: F401  # Configure structlog's stderr fallback for direct app use.
 from cli_app.cli.app import app
 
 runner = CliRunner()
@@ -24,6 +28,17 @@ def test_authors_flag_shows_author_name(flag: str) -> None:
 def test_example_command_with_argument_exits_zero() -> None:
     result = runner.invoke(app, ["command", "example-command", "hello"])
     assert result.exit_code == 0
+
+
+def test_example_command_uses_console_at_invocation(monkeypatch: pytest.MonkeyPatch) -> None:
+    output = StringIO()
+    console = Console(file=output, force_terminal=False)
+    monkeypatch.setattr(command_module, "get_console", lambda: console)
+
+    result = runner.invoke(app, ["command", "example-command", "hello"])
+
+    assert result.exit_code == 0
+    assert "hello" in output.getvalue()
 
 
 def test_example_command_missing_argument_fails() -> None:

@@ -62,6 +62,7 @@ class ConsoleConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_prefix="CLI_APP_CONSOLE_",
+        env_ignore_empty=True,
         extra="ignore",
         case_sensitive=False,
         arbitrary_types_allowed=True,

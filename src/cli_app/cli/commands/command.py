@@ -9,7 +9,6 @@ from cli_app.utils.output import OutputFormat, render_output
 from cli_app.utils.stdin import read_stdin_if_piped
 
 app = Typer()
-console = get_console()
 log = structlog.get_logger()
 
 
@@ -33,6 +32,7 @@ def example_command(
     ] = None,
 ) -> None:
     """Help text for command example."""
+    console = get_console()
     resolved = argument if argument is not None else read_stdin_if_piped()
     if not resolved:
         console.print("[danger]Error: argument required (or pipe input via stdin).[/danger]")
