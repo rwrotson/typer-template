@@ -51,6 +51,12 @@ result = run_example(argument if argument is not None else read_stdin_if_piped()
 
 `CliRunner` provides non-TTY stdin in tests, even when no input is passed. `run_example()` rejects the resulting empty string with `InvalidInputError`.
 
+## Documentation Toolchain
+
+The site is built with [ProperDocs](https://properdocs.org/), a maintained continuation of MkDocs 1.x that reads the same configuration (`properdocs.yml`) and runs MkDocs themes and plugins unchanged. MkDocs 2.0 drops the plugin and theme system, and Material for MkDocs requires `mkdocs<2`, so the `mkdocs` package stays on 1.x as a library dependency of the plugins. Running `properdocs` instead of `mkdocs` also avoids the MkDocs 2.0 warnings printed by Material and the plugins.
+
+[Zensical](https://zensical.org/), the successor to Material for MkDocs, does not support `mkdocs-gen-files` yet; the API reference and configuration pages depend on it.
+
 ## Commitizen & Versioning
 
 [Commitizen](https://commitizen-tools.github.io/commitizen/) reads Conventional Commit messages to select the next version and update `CHANGELOG.md`. Its settings are in `pyproject.toml`:
@@ -79,12 +85,12 @@ must stay consistent.
    `src/my_tool/config/settings.py`, and `PREFIX` in `docs/gen_config_page.py`. Adjust the
    default log directory and file name in `LogSettings`. Update `.env.example`, README
    examples, and tests using `CLI_APP_` variables.
-4. Update `mkdocs.yml` (`site_name`, repository links, and the source watch path) and
+4. Update `properdocs.yml` (`site_name`, repository links, and the source watch path) and
    `docs/gen_ref_pages.py`, which scans the import package for API pages. Update names and
    links in README, docs, and `AGENTS.md`. If you host docs on GitHub Pages, configure Pages
    Source as **GitHub Actions** and allow release tags in the `github-pages` environment.
 5. Regenerate the lockfile with `uv lock`, then run `uv sync --all-groups --locked`,
-   `uv run pytest`, `uv build`, and `uv run --group docs mkdocs build`. Check that
+   `uv run pytest`, `uv build`, and `uv run --group docs properdocs build`. Check that
    `uv run my-tool --help` and `uv run my-tool --version` show the new project identity.
 
 The release workflow only deploys documentation. Add a separate publishing workflow if the
