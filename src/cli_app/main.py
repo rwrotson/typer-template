@@ -4,6 +4,7 @@ from cli_app.utils.log import setup_logging
 
 
 def main() -> None:
+    """Initialize logging and the console, then run the CLI."""
     setup_logging()
     get_console()
     app()

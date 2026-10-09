@@ -9,16 +9,22 @@ from typing import Self, TypedDict, cast
 
 
 class DependencyDict(TypedDict):
+    """Identify an installed dependency and its version."""
+
     name: str
     version: str
 
 
 class ContactDict(TypedDict):
+    """Store a package contact's name and email address."""
+
     name: str
     email: str
 
 
 class MetaDict(TypedDict, total=False):
+    """Describe the available installed distribution metadata."""
+
     metadata_version: str
     name: str
     version: str
@@ -37,13 +43,12 @@ class MetaDict(TypedDict, total=False):
 
 @dataclass(slots=True, frozen=True)
 class Meta:
-    """Class parsing metadata."""
+    """Load and expose metadata for the installed application."""
 
     data: MetaDict
 
     @staticmethod
     def _find_dist_name_from_direct_url(pkg_file: Path) -> str | None:
-        """Find the distribution name by scanning direct_url.json for editable installs."""
         for dist in metadata.distributions():
             raw = dist.read_text("direct_url.json")
             if raw:
@@ -58,15 +63,12 @@ class Meta:
 
     @classmethod
     def load_from_installed_package(cls) -> Self:
-        """Find and load distribution metadata for the installed package containing this file."""
+        """Load metadata for the distribution containing this package."""
         pkg_file = Path(__file__).resolve()
 
-        # For editable installs uv_build uses a .pth file and omits top_level.txt,
-        # so packages_distributions() won't find us. Instead, find the distribution
-        # whose direct_url.json points to a directory that contains this file.
+        # Editable uv_build installs omit top_level.txt, so resolve direct_url.json first.
         dist_name = cls._find_dist_name_from_direct_url(pkg_file)
 
-        # Fall back to packages_distributions() for non-editable installs.
         if dist_name is None:
             top_level_pkg = __package__.split(".")[0] if __package__ else None
             if top_level_pkg:
@@ -100,7 +102,6 @@ class Meta:
 
     @staticmethod
     def _get_installed_dependencies(requires_dist: list[str]) -> list[DependencyDict]:
-        """Resolve declared dependencies to their installed versions."""
         pkg_name_pattern = re.compile(r"^[a-zA-Z0-9._-]+")
         pkg_names = [
             m.group(0).lower()
@@ -117,7 +118,6 @@ class Meta:
 
     @staticmethod
     def _get_fallback_meta(pkg_name: str) -> MetaDict:
-        """Return a placeholder MetaDict when the real distribution cannot be found."""
         return {
             "name": f"{pkg_name} (not installed)",
             "version": "0.0.0-dev",
@@ -134,5 +134,5 @@ class Meta:
 
 @cache
 def get_project_meta() -> Meta:
-    """Fetch the project metadata using the Meta class."""
+    """Return cached metadata for the installed application."""
     return Meta.load_from_installed_package()

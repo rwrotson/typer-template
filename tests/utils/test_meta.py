@@ -41,7 +41,6 @@ def test_get_installed_dependencies_empty_input() -> None:
 
 
 def test_get_installed_dependencies_known_package() -> None:
-    # typer is a declared dependency of this project and must be installed.
     deps = Meta._get_installed_dependencies(["typer>=0.16.0"])  # noqa: SLF001
     assert "typer" in {d["name"].lower() for d in deps}
 

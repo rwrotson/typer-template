@@ -1,15 +1,16 @@
-"""Generate docs/configuration.md from .env.example at docs build time."""  # noqa: INP001
-
 from pathlib import Path
 
 import mkdocs_gen_files
 
+type ConfigRow = tuple[str, str, str]
+type ConfigSection = tuple[str, list[ConfigRow]]
+
 env_example = Path(__file__).parent.parent / ".env.example"
 lines = env_example.read_text().splitlines()
 
-sections: list[tuple[str, list[tuple[str, str, str]]]] = []  # [(heading, [(var, default, desc)])]
+sections: list[ConfigSection] = []
 current_heading = ""
-current_rows: list[tuple[str, str, str]] = []
+current_rows: list[ConfigRow] = []
 
 for line in lines:
     stripped = line.strip()
@@ -21,7 +22,6 @@ for line in lines:
         current_heading = stripped.lstrip("# ").strip()
         current_rows = []
     elif "=" in stripped:
-        # Split off inline comment
         if " #" in stripped:
             var_part, desc = stripped.split(" #", 1)
             desc = desc.strip()

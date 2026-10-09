@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file describes repository conventions for coding agents.
 
 ## Project Overview
 
@@ -82,7 +82,7 @@ module-name = "cli_app"
 module-root = "src"
 ```
 
-All internal imports are **absolute**, using the `cli_app.` prefix:
+Internal imports use the `cli_app.` prefix; package `__init__.py` exports may use relative imports:
 
 ```python
 from cli_app.cli.app import app
@@ -101,10 +101,11 @@ src/cli_app/cli/callbacks/      — Eager option callbacks that print metadata a
 src/cli_app/cli/commands/       — Subcommand groups; each file creates its own Typer sub-app
 ```
 
-The root callback (`app.py`) sets two values in `ctx.obj` before any subcommand runs:
+The root callback (`app.py`) sets the output format before any subcommand runs:
 
-- `ctx.obj["output_format"]` — `OutputFormat.text` or `OutputFormat.json` (from `--output-format`)
-- Adjusts root logger level when `--verbose` is passed.
+- `ctx.obj["output_format"]` is `OutputFormat.text` or `OutputFormat.json` (from `--output-format`).
+
+It also adjusts the root logger level when `--verbose` is passed.
 
 To add a new command group: create a file in `src/cli_app/cli/commands/`, define a Typer app, export it from `__init__.py`, then add `app.add_typer(...)` in `src/cli_app/cli/app.py`.
 
@@ -115,7 +116,7 @@ To add a new command group: create a file in `src/cli_app/cli/commands/`, define
 - Console: `CLI_APP_CONSOLE_*`
 - Logging: `CLI_APP_LOG_*`
 
-`get_console()` and `get_project_meta()` are `@cache`-decorated — call them anywhere without performance concern.
+`get_console()` and `get_project_meta()` cache their results.
 
 ### Logging (structlog)
 
@@ -124,6 +125,10 @@ To add a new command group: create a file in `src/cli_app/cli/commands/`, define
 Use `structlog.contextvars.bind_contextvars(key=value)` to attach context that appears on every log line.
 
 Before `setup_logging()` is called (e.g. in tests), structlog defaults to stderr output so it never pollutes stdout.
+
+### Documentation Generation
+
+`docs/gen_ref_pages.py` generates API pages from source modules. `docs/gen_config_page.py` builds the configuration page from `.env.example` comments.
 
 ### Utilities
 
@@ -142,3 +147,18 @@ Before `setup_logging()` is called (e.g. in tests), structlog defaults to stderr
 ### Type Checking
 
 MyPy runs in strict mode (`disallow_untyped_defs = true`). All new code must have complete type annotations. Python 3.14 supports union syntax (`X | Y`), which is preferred over `Optional[X]`.
+
+## Commit Handoff
+
+- Do not create or amend commits on the user's behalf.
+- After completing and verifying a meaningful, self-contained part of the work, pause before starting the next part.
+- At each pause, send the user a one-line English Conventional Commit message for the completed work. Resume when the user asks you to continue.
+
+## Documentation and Comments
+
+- Write documentation, docstrings, and comments in English. Keep them short and factual. Describe each entity's purpose without editorial commentary or tutorials.
+- Do not add module docstrings. Package docstrings in `__init__.py` are optional. Put package behavior and important module details in Markdown documentation such as `README.md` or `docs/`.
+- Give public classes, functions, and ordinary methods a docstring. Prefer one line describing their overall purpose; do not repeat names, signatures, or type annotations. Ruff checks these in application code. Test functions, fixtures, and standard `dunder` methods are exempt.
+- Add docstrings to protected or private objects only when they explain behavior that is not clear from code.
+- Keep inline comments only for non-obvious behavior or decisions. Put a short comment on the relevant line when it fits; otherwise place it immediately above. Retain necessary tool directives such as `# noqa` and `# type: ignore`.
+- Prefer clearer names and more precise types over comments that restate code.

@@ -203,9 +203,6 @@ ignore = [
     "FBT002",
     "F811",
     "D100",
-    "D101",
-    "D102",
-    "D103",
     "D104",
     "D105",
     "D106",
@@ -225,7 +222,11 @@ ignore = [
 ]
 fixable = ["I", "D2"]
 unfixable = []
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"  # Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["D101", "D102", "D103"]
+"docs/gen_*.py" = ["INP001"]
 
 [tool.ruff.lint.isort]
 known-local-folder = ["cli_app"]

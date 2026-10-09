@@ -1,6 +1,6 @@
 # typer-template
 
-A template for building Python CLI applications with [Typer](https://typer.tiangolo.com/), featuring Rich output, structured logging via structlog, and environment-based configuration.
+A Python CLI template with Typer, Rich output, structlog logging, and environment-based settings.
 
 ## Stack
 
@@ -23,44 +23,41 @@ A template for building Python CLI applications with [Typer](https://typer.tiang
 ## Getting Started
 
 ```bash
-# Clone the repo and install dependencies
 uv sync --all-groups --locked
 
-# Run the CLI
 uv run cli-app --help
 
-# Install pre-commit and commit-msg hooks (enforces Conventional Commits)
 uv run pre-commit install
 ```
 
 ## Development
 
-Tasks are available via [taskipy](https://github.com/taskipy/taskipy) — run with `uv run task <name>`:
+Run development tasks with [taskipy](https://github.com/taskipy/taskipy):
 
 ```bash
-uv run task lint        # ruff check
-uv run task fmt         # ruff format
-uv run task typecheck   # mypy src/ tests/
-uv run task test        # pytest (parallel, 80% coverage enforced)
-uv run task test-fast   # pytest --no-cov -n auto
-uv run task audit       # pip-audit dependency audit
+uv run task lint
+uv run task fmt
+uv run task typecheck
+uv run task test
+uv run task test-fast
+uv run task audit
 ```
 
 Or run the tools directly:
 
 ```bash
-uv run pytest --no-cov -n auto          # fast parallel run
-uv run pytest tests/path/to/test.py     # single file
+uv run pytest --no-cov -n auto
+uv run pytest tests/path/to/test.py
 ```
 
 ## Docs
 
 ```bash
-uv run --group docs mkdocs serve      # live preview at http://127.0.0.1:8000
-uv run --group docs mkdocs build      # build static site to site/
+uv run --group docs mkdocs serve
+uv run --group docs mkdocs build
 ```
 
-Source is in `docs/`. Powered by [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) with `mkdocstrings` for API reference generation. The release workflow deploys the site to GitHub Pages from version tags or a manual workflow run.
+Source is in `docs/`. MkDocs generates the API reference from public docstrings. The release workflow deploys the site to GitHub Pages.
 
 ## Global CLI Flags
 
@@ -78,15 +75,15 @@ JSON output is written to stdout; diagnostics are written to stderr.
 ```bash
 cli-app --verbose command example-command hello
 cli-app --output-format json command example-command hello
-echo "hello" | cli-app command example-command   # stdin piping
+echo "hello" | cli-app command example-command
 ```
 
 ## Shell Completion
 
 ```bash
-cli-app completion install           # install for the current shell
+cli-app completion install
 cli-app completion install --shell zsh
-cli-app completion show              # print the completion script
+cli-app completion show
 ```
 
 Or directly via the built-in Typer flags:
@@ -101,10 +98,8 @@ cli-app --show-completion
 This template uses [Conventional Commits](https://www.conventionalcommits.org/) enforced by a `commit-msg` pre-commit hook.
 
 ```bash
-# Bump version, update CHANGELOG, tag
 uv run cz bump
 
-# Preview changelog without bumping
 uv run cz changelog --dry-run
 ```
 
@@ -121,7 +116,7 @@ Console and logging behaviour can be configured via environment variables or a `
 
 ```env
 CLI_APP_LOG_LEVEL=DEBUG
-CLI_APP_LOG_USE_JSON_FORMATTER=true   # emit JSON logs (for Datadog, Loki, etc.)
+CLI_APP_LOG_USE_JSON_FORMATTER=true
 CLI_APP_CONSOLE_WIDTH=120
 ```
 
@@ -137,7 +132,7 @@ src/
     │   └── commands/
     │       ├── command.py   # example command group (stdin + output-format patterns)
     │       └── completion.py # shell completion sub-app
-    ├── core/                # domain logic + Settings
+    ├── core/                # application Settings
     └── utils/
         ├── console.py       # singleton Rich Console
         ├── log.py           # structlog setup (ConsoleRenderer dev / JSON prod)

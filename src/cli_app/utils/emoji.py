@@ -2,7 +2,7 @@ from enum import StrEnum
 
 
 class Emoji(StrEnum):
-    """Shortcut for emoji actively used in the console."""
+    """Provide emoji used by console output."""
 
     ROCKET = "🚀"
     STOP_SIGN = "🛑"

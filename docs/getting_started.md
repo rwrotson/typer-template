@@ -11,7 +11,6 @@
 git clone <repo-url>
 cd typer-template
 uv sync --all-groups --locked
-# Installs both pre-commit checks and the Conventional Commits commit-msg hook
 uv run pre-commit install
 ```
 
@@ -25,29 +24,23 @@ uv run cli-app --authors
 
 ### Global flags
 
-These flags work in front of any subcommand:
+Place global flags before the subcommand:
 
 ```bash
-# Enable DEBUG logging for the duration of the command
 uv run cli-app --verbose command example-command hello
 
-# Emit machine-readable JSON instead of Rich text
 uv run cli-app --output-format json command example-command hello
 
-# Pipe stdin into a command
 echo "hello" | uv run cli-app command example-command
 ```
 
 ### Shell completion
 
 ```bash
-# Install completion for the current shell
 uv run cli-app completion install
 
-# Or target a specific shell
 uv run cli-app completion install --shell zsh
 
-# Print the script without installing
 uv run cli-app completion show
 ```
 
@@ -102,7 +95,7 @@ log = get_logger()
 
 @app.command()
 def my_action(ctx: Context, name: str) -> None:
-    """Do something."""
+    """Greet a named user in text or JSON."""
     console = get_console()
     log.debug("my_action called", name=name)
     fmt = ctx.obj.get("output_format", OutputFormat.text) if ctx.obj else OutputFormat.text
@@ -154,6 +147,6 @@ Behaviour can be overridden via environment variables or a `.env` file:
 
 ```env
 CLI_APP_LOG_LEVEL=DEBUG
-CLI_APP_LOG_USE_JSON_FORMATTER=true   # JSON logs for Datadog/Loki/etc.
+CLI_APP_LOG_USE_JSON_FORMATTER=true
 CLI_APP_CONSOLE_WIDTH=120
 ```

@@ -32,7 +32,6 @@ def test_iter_stdin_lines(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_read_stdin_if_piped_returns_content(monkeypatch: pytest.MonkeyPatch) -> None:
-    # StringIO.isatty() returns False, so is_stdin_piped() returns True automatically.
     monkeypatch.setattr(sys, "stdin", io.StringIO("piped content"))
     assert read_stdin_if_piped() == "piped content"
 

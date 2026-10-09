@@ -26,12 +26,7 @@ def render_output(
     *,
     text_render: Callable[[], None] | None = None,
 ) -> None:
-    """Render *data* in the requested format.
-
-    When *fmt* is ``OutputFormat.json`` the data is serialised to JSON.
-    When *fmt* is ``OutputFormat.text`` *text_render* is called if provided;
-    otherwise the data is printed via the Rich console.
-    """
+    """Render JSON or use the supplied text renderer or Rich console."""
     if fmt == OutputFormat.json:
         echo_json(data)
     elif text_render is not None:

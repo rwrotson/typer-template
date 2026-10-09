@@ -28,7 +28,7 @@ _CONSOLE_CONFIG_DYNAMIC_FIELDS_MAPPING: Final[dict[str, dict[str, Callable[..., 
 
 
 class ConsoleConfig(BaseSettings):
-    """Pydantic settings for the Rich console, configurable via CLI_APP_CONSOLE_* env vars."""
+    """Configure the Rich console from CLI_APP_CONSOLE_* variables."""
 
     color_system: Literal["auto", "standard", "256", "truecolor", "windows"] | None = "auto"
     force_terminal: bool | None = None
@@ -79,4 +79,5 @@ class ConsoleConfig(BaseSettings):
 
 @cache
 def get_console() -> Console:
+    """Return the shared Rich console."""
     return Console(**ConsoleConfig().model_dump())

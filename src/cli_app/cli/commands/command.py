@@ -32,7 +32,7 @@ def example_command(
         ),
     ] = None,
 ) -> None:
-    """Help text for command example."""
+    """Display an argument and optional integer in text or JSON."""
     console = get_console()
     resolved = argument if argument is not None else read_stdin_if_piped()
     if not resolved:

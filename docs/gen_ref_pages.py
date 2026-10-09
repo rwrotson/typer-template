@@ -1,5 +1,3 @@
-"""Generate API reference pages from src/cli_app/ at docs build time."""  # noqa: INP001
-
 from pathlib import Path
 
 import mkdocs_gen_files

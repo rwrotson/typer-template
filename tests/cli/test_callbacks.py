@@ -1,5 +1,3 @@
-"""Unit tests for CLI callbacks not exercised via integration tests."""
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -9,7 +7,7 @@ from cli_app.cli.callbacks.meta import summary_cb
 
 
 def test_summary_cb_noop_when_false() -> None:
-    summary_cb(False)  # must not raise
+    summary_cb(False)
 
 
 def test_summary_cb_prints_summary_and_exits() -> None:

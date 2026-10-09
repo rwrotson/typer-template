@@ -1,5 +1,3 @@
-"""Shell completion management commands."""
-
 import subprocess
 import sys
 from typing import Annotated
@@ -20,7 +18,7 @@ def install_completion(
         ),
     ] = None,
 ) -> None:
-    """Install shell completion for the current shell into its profile file."""
+    """Install shell completion into the selected shell profile."""
     cmd = [sys.argv[0], "--install-completion"]
     if shell:
         cmd.append(shell)

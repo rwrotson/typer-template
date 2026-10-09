@@ -11,15 +11,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class _AppFileHandler(logging.handlers.RotatingFileHandler):
-    """File handler owned by this application."""
+    """Mark file handlers for replacement when logging is reconfigured."""
 
 
 class _AppConsoleHandler(logging.StreamHandler[TextIO]):
-    """Console handler owned by this application."""
+    """Mark console handlers for replacement when logging is reconfigured."""
 
 
 class LogConfig(BaseSettings):
-    """Pydantic settings for logging, configurable via CLI_APP_LOG_* env vars."""
+    """Configure logging from CLI_APP_LOG_* variables."""
 
     level: int = logging.INFO
     console_level: int = logging.DEBUG
@@ -40,7 +40,6 @@ class LogConfig(BaseSettings):
     @field_validator("level", "console_level", "file_level", mode="before")
     @classmethod
     def _validate_log_level(cls, value: str | int) -> int:
-        """Accept log level as a string name (e.g. 'DEBUG') or an integer."""
         if isinstance(value, str):
             level_name = value.upper()
             level = logging.getLevelName(level_name)
@@ -53,14 +52,7 @@ class LogConfig(BaseSettings):
 
 
 def setup_logging(config: LogConfig | None = None) -> None:
-    """Configure structlog and stdlib logging.
-
-    Structlog is wired through stdlib so that both first-party loggers
-    (``structlog.get_logger()``) and third-party stdlib loggers share the
-    same handler chain.  The file handler always emits JSON; the console
-    handler emits colourised output by default or JSON when
-    ``use_json_formatter`` is ``True``.
-    """
+    """Configure shared structlog and stdlib console and file handlers."""
     if config is None:
         config = LogConfig()
 
@@ -68,7 +60,6 @@ def setup_logging(config: LogConfig | None = None) -> None:
     logs_dir_path.mkdir(parents=True, exist_ok=True)
     log_file_path = logs_dir_path / config.file_name
 
-    # Processors applied to every log record (structlog and foreign stdlib).
     shared_processors: list[structlog.types.Processor] = [
         structlog.contextvars.merge_contextvars,
         structlog.stdlib.add_log_level,
@@ -84,7 +75,6 @@ def setup_logging(config: LogConfig | None = None) -> None:
         else structlog.dev.ConsoleRenderer()
     )
 
-    # File handler always writes JSON for structured log analysis.
     file_formatter = structlog.stdlib.ProcessorFormatter(
         processors=[
             structlog.stdlib.ProcessorFormatter.remove_processors_meta,
@@ -132,12 +122,11 @@ def setup_logging(config: LogConfig | None = None) -> None:
 
 
 def get_logger() -> structlog.typing.FilteringBoundLogger:
-    """Return a logger after installing the stderr fallback for early calls."""
+    """Return a logger that writes to stderr before logging is configured."""
     return cast(structlog.typing.FilteringBoundLogger, structlog.get_logger())
 
 
-# Ensure structlog never writes to stdout before setup_logging() is called.
-# setup_logging() will fully reconfigure this with stdlib integration.
+# Keep early logs off stdout so JSON command output remains valid.
 structlog.configure(
     logger_factory=structlog.PrintLoggerFactory(sys.stderr),
     wrapper_class=structlog.stdlib.BoundLogger,

@@ -52,7 +52,7 @@ def main(
         ),
     ] = OutputFormat.text,
 ) -> None:
-    """Manage the main application state and top-level options like --version."""
+    """Set the output format and logging level for CLI commands."""
     ctx.ensure_object(dict)
     ctx.obj["output_format"] = output_format
     if verbose:

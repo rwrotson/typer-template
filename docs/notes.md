@@ -2,7 +2,7 @@
 
 ## Build Backend
 
-The project uses `uv_build` with the standard `src/` layout: source lives in `src/cli_app/`. This is the conventional approach and is configured with:
+`uv_build` loads the `cli_app` package from `src/`:
 
 ```toml
 [tool.uv.build-backend]
@@ -10,63 +10,58 @@ module-name = "cli_app"
 module-root = "src"
 ```
 
-`module-root = "src"` tells uv_build to look for `./src/cli_app/__init__.py` as the package root.
-
 ## Package Metadata at Runtime
 
-`src/cli_app/utils/meta.py` uses `importlib.metadata` to read the installed distribution's name, version, and dependencies. For editable installs (the default with `uv sync`), uv_build does not write a `top_level.txt`, so `packages_distributions()` cannot always map the `cli_app` package back to the `cli-app` distribution. Instead, `Meta.load_from_installed_package()` scans all installed distributions and finds the one whose `direct_url.json` points to a directory containing the current file.
+`cli_app.utils.meta` reads the installed distribution's name, version, and dependencies. Editable `uv_build` installs omit `top_level.txt`, so `Meta.load_from_installed_package()` resolves the distribution through `direct_url.json` before using `packages_distributions()`.
 
 ## structlog Integration
 
-Logging is built on [structlog](https://www.structlog.org/) bridged through stdlib's `logging` module via `ProcessorFormatter`. This means:
+`cli_app.utils.log` connects [structlog](https://www.structlog.org/) to stdlib logging through `ProcessorFormatter`:
 
-- **First-party loggers** use `get_logger()` from `utils/log.py` with keyword-argument context binding (`log.info("event", key=value)`).
-- **Third-party stdlib loggers** (e.g. `httpx`, `sqlalchemy`) are automatically picked up by the same handler chain.
-- **Console output** uses `ConsoleRenderer` (colourised, human-readable) by default, switching to `JSONRenderer` when `CLI_APP_LOG_USE_JSON_FORMATTER=true`.
-- **File output** always writes JSON for structured log analysis. By default, logs are stored in the platform-specific user log directory; `CLI_APP_LOG_DIR` overrides it.
-- `structlog.contextvars.bind_contextvars()` lets you attach fields that appear on every subsequent log line within a request or command invocation.
+- `get_logger()` creates first-party loggers; third-party stdlib loggers use the same handlers.
+- Console logs use Rich-style output or JSON when `CLI_APP_LOG_USE_JSON_FORMATTER=true`.
+- File logs use JSON in the user log directory; `CLI_APP_LOG_DIR` overrides the directory.
+- `structlog.contextvars.bind_contextvars()` adds fields to subsequent logs in the current context.
 
-`setup_logging()` in `utils/log.py` is called at startup (`main.py`). Importing `get_logger()` also installs the early stderr fallback, so direct Typer app use cannot send debug logs to JSON stdout before startup.
+`main()` calls `setup_logging()`. Before setup, structlog writes to stderr to keep JSON command output on stdout valid.
 
 ## Output Format Pattern
 
-Commands read `ctx.obj["output_format"]` (set by the root callback) and call `render_output()` from `utils/output.py`:
+Commands read `ctx.obj["output_format"]` from the root callback and call `render_output()`:
 
 ```python
 render_output(
-    {"key": value},  # data for JSON mode
+    {"key": value},
     fmt,
-    text_render=lambda: console.print(...),  # callable for text mode
+    text_render=lambda: console.print(...),
 )
 ```
 
-This keeps JSON and human output co-located in the command while staying testable independently. JSON data goes to stdout; diagnostics go to stderr.
+JSON output goes to stdout; diagnostics go to stderr. In text mode, `render_output()` uses `text_render` when provided and the Rich console otherwise.
 
 ## Stdin Piping Pattern
 
-`utils/stdin.py` provides `read_stdin_if_piped()` which returns `None` when stdin is a TTY (interactive) and the stdin content when piped. The recommended pattern is:
+`read_stdin_if_piped()` returns `None` for a TTY and the available content for piped stdin:
 
 ```python
 resolved = argument if argument is not None else read_stdin_if_piped()
 if not resolved:
-    ...raise Exit(1)
+    raise Exit(1)
 ```
 
-This lets commands accept both `cli-app cmd arg` and `echo arg | cli-app cmd`.
-
-Note: `CliRunner` in tests uses a BytesIO stdin whose `isatty()` returns `False`, so `is_stdin_piped()` always returns `True` in tests. Checking `if not resolved:` (rather than `if resolved is None:`) correctly rejects the empty-string case that CliRunner produces when no `input=` is given.
+`CliRunner` provides non-TTY stdin in tests, even when no input is passed. The empty-string check rejects that case.
 
 ## Commitizen & Versioning
 
-[Commitizen](https://commitizen-tools.github.io/commitizen/) reads Conventional Commit messages to determine the next version and generate CHANGELOG entries. Configuration lives in `[tool.commitizen]` in `pyproject.toml`:
+[Commitizen](https://commitizen-tools.github.io/commitizen/) reads Conventional Commit messages to select the next version and update `CHANGELOG.md`. Its settings are in `pyproject.toml`:
 
 ```toml
-version_provider = "uv"          # reads/writes the version in pyproject.toml
+version_provider = "uv"
 update_changelog_on_bump = true
-major_version_zero = true        # 0.x.y — breaking changes don't force 1.0
+major_version_zero = true
 ```
 
-The `commit-msg` pre-commit hook rejects commits that don't follow the format (`feat:`, `fix:`, `chore:`, etc.).
+The `commit-msg` hook checks Conventional Commit format.
 
 ## Renaming the Template
 
