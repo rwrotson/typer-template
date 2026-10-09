@@ -1,13 +1,11 @@
 import logging
 import logging.handlers
 import sys
-from pathlib import Path
 from typing import TextIO, cast
 
 import structlog
-from platformdirs import user_log_path
-from pydantic import field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from cli_app.config import LogSettings, load_settings
 
 
 class _AppFileHandler(logging.handlers.RotatingFileHandler):
@@ -18,45 +16,12 @@ class _AppConsoleHandler(logging.StreamHandler[TextIO]):
     """Mark console handlers for replacement when logging is reconfigured."""
 
 
-class LogConfig(BaseSettings):
-    """Configure logging from CLI_APP_LOG_* variables."""
-
-    level: int = logging.INFO
-    console_level: int = logging.DEBUG
-    file_level: int = logging.INFO
-    dir: Path = user_log_path("cli-app")
-    file_name: str = "cli-app.log"
-    file_max_bytes: int = 4 * 1024 * 1024
-    file_backup_count: int = 5
-    use_json_formatter: bool = False
-
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_prefix="CLI_APP_LOG_",
-        extra="ignore",
-        case_sensitive=False,
-    )
-
-    @field_validator("level", "console_level", "file_level", mode="before")
-    @classmethod
-    def _validate_log_level(cls, value: str | int) -> int:
-        if isinstance(value, str):
-            level_name = value.upper()
-            level = logging.getLevelName(level_name)
-            if isinstance(level, int):
-                return level
-            raise ValueError(f"Invalid log level: {value}")
-        if isinstance(value, int):
-            return value
-        raise TypeError(f"Log level must be a string or int, not {type(value)}")
-
-
-def setup_logging(config: LogConfig | None = None) -> None:
+def setup_logging(config: LogSettings | None = None) -> None:
     """Configure shared structlog and stdlib console and file handlers."""
     if config is None:
-        config = LogConfig()
+        config = load_settings().log
 
-    logs_dir_path = config.dir.resolve()
+    logs_dir_path = config.resolved_dir.resolve()
     logs_dir_path.mkdir(parents=True, exist_ok=True)
     log_file_path = logs_dir_path / config.file_name
 
@@ -64,14 +29,14 @@ def setup_logging(config: LogConfig | None = None) -> None:
         structlog.contextvars.merge_contextvars,
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
-        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.TimeStamper(fmt="iso", utc=True),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
     ]
 
     console_renderer: structlog.types.Processor = (
         structlog.processors.JSONRenderer()
-        if config.use_json_formatter
+        if config.format == "json"
         else structlog.dev.ConsoleRenderer()
     )
 

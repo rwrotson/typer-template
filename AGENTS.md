@@ -123,16 +123,15 @@ To add a new command group: create a file in `src/cli_app/cli/commands/`, define
 
 ### Configuration via Environment Variables
 
-`ConsoleConfig` (`src/cli_app/utils/console.py`) and `LogConfig` (`src/cli_app/utils/log.py`) are Pydantic `BaseSettings` classes that read from environment variables and `.env` files:
+`src/cli_app/config/settings.py` defines `Settings` (Pydantic `BaseSettings`, prefix `CLI_APP_`, nested delimiter `__`) with defaults in code and the sections `ConsoleSettings` (`CLI_APP_CONSOLE__*`) and `LogSettings` (`CLI_APP_LOG__*`). `load_settings()` reads the environment and `.env`; empty values use defaults. `setup_logging()` and `build_console()` take a section instead of reading the environment themselves.
 
-- Console: `CLI_APP_CONSOLE_*`
-- Logging: `CLI_APP_LOG_*`
+Every setting needs a `Field(description=...)` and a line in `.env.example`; tests in `tests/config/` enforce both. The docs configuration page is generated from `Settings` by `docs/gen_config_page.py`; do not edit it by hand.
 
 `get_console()` and `get_project_meta()` cache their results.
 
 ### Logging (structlog)
 
-`setup_logging()` configures structlog bridged through stdlib via `ProcessorFormatter`. First-party commands use `get_logger()` from `cli_app.utils.log` so early logs go to stderr; third-party stdlib loggers share the same handler chain. Console output uses `ConsoleRenderer` by default; set `CLI_APP_LOG_USE_JSON_FORMATTER=true` for JSON. File output is always JSON.
+`setup_logging()` configures structlog bridged through stdlib via `ProcessorFormatter`. First-party commands use `get_logger()` from `cli_app.utils.log` so early logs go to stderr; third-party stdlib loggers share the same handler chain. Console output uses `ConsoleRenderer` by default; set `CLI_APP_LOG__FORMAT=json` for JSON. File output is always JSON.
 
 Use `structlog.contextvars.bind_contextvars(key=value)` to attach context that appears on every log line.
 
@@ -140,14 +139,14 @@ Before `setup_logging()` is called (e.g. in tests), structlog defaults to stderr
 
 ### Documentation Generation
 
-`docs/gen_ref_pages.py` generates API pages from source modules. `docs/gen_config_page.py` builds the configuration page from `.env.example` comments.
+`docs/gen_ref_pages.py` generates API pages from source modules. `docs/gen_config_page.py` builds the configuration page from `Settings` field types, defaults, and descriptions.
 
 ### Utilities
 
 | Module | Purpose |
 |--------|---------|
 | `src/cli_app/utils/console.py` | Singleton Rich `Console` with theming |
-| `src/cli_app/utils/log.py` | structlog setup; file + console handlers; `LogConfig` Pydantic settings |
+| `src/cli_app/utils/log.py` | structlog setup; file + console handlers configured from `LogSettings` |
 | `src/cli_app/utils/output.py` | `OutputFormat` enum; `render_output()` and `echo_json()` helpers |
 | `src/cli_app/utils/stdin.py` | `is_stdin_piped()`, `read_stdin_if_piped()`, `iter_stdin_lines()` |
 | `src/cli_app/utils/meta.py` | Reads distribution metadata at runtime; scans `direct_url.json` for editable-install compat |

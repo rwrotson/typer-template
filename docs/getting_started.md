@@ -149,15 +149,17 @@ def process(ctx: Context, text: str | None = None) -> None:
 
 ## Configuration
 
-Behaviour can be overridden via environment variables or a `.env` file:
+Behaviour can be overridden via environment variables or a `.env` file. Sections are nested with `__`:
 
 | Prefix | Controls |
 |--------|----------|
-| `CLI_APP_CONSOLE_*` | Rich console (theme, colors, width) |
-| `CLI_APP_LOG_*` | Log level, file path, rotation, JSON format |
+| `CLI_APP_CONSOLE__*` | Rich console (width, colors, markup, quiet mode) |
+| `CLI_APP_LOG__*` | Log levels, console renderer, log directory, file rotation |
 
 ```env
-CLI_APP_LOG_LEVEL=DEBUG
-CLI_APP_LOG_USE_JSON_FORMATTER=true
-CLI_APP_CONSOLE_WIDTH=120
+CLI_APP_LOG__LEVEL=DEBUG
+CLI_APP_LOG__FORMAT=json
+CLI_APP_CONSOLE__WIDTH=120
 ```
+
+All variables are listed on the [configuration page](configuration.md).

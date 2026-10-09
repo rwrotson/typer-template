@@ -19,8 +19,9 @@ module-root = "src"
 `cli_app.utils.log` connects [structlog](https://www.structlog.org/) to stdlib logging through `ProcessorFormatter`:
 
 - `get_logger()` creates first-party loggers; third-party stdlib loggers use the same handlers.
-- Console logs use Rich-style output or JSON when `CLI_APP_LOG_USE_JSON_FORMATTER=true`.
-- File logs use JSON in the user log directory; `CLI_APP_LOG_DIR` overrides the directory.
+- Console logs use Rich-style output or JSON when `CLI_APP_LOG__FORMAT=json`.
+- File logs use JSON in the user log directory; `CLI_APP_LOG__DIR` overrides the directory.
+- Timestamps are ISO 8601 in UTC.
 - `structlog.contextvars.bind_contextvars()` adds fields to subsequent logs in the current context.
 
 `main()` calls `setup_logging()`. Before setup, structlog writes to stderr to keep JSON command output on stdout valid.
@@ -72,13 +73,13 @@ must stay consistent.
 1. Rename `src/cli_app/` to `src/my_tool/`. Replace `cli_app` in imports throughout `src/`
    and `tests/`, including mock targets and the metadata test. Update `module-name` under
    `[tool.uv.build-backend]`, `[tool.coverage.run].source`, and
-   `[tool.ruff.lint.isort].known-local-folder` in `pyproject.toml`.
+   `[tool.ruff.lint.isort].known-first-party` in `pyproject.toml`.
 2. Set `[project].name` and `[project.scripts]` in `pyproject.toml`. Point the script at
    `my_tool.main:main`. Update the project description, authors, keywords, and other metadata.
-3. Change the `CLI_APP_` environment prefixes in `src/my_tool/core/settings.py`,
-   `src/my_tool/utils/console.py`, and `src/my_tool/utils/log.py`. Update `.env.example`,
-   README examples, and tests using those variables. Adjust the default log directory and
-   filename in `src/my_tool/utils/log.py`.
+3. Change `env_prefix` and the `env_fields()` default prefix in
+   `src/my_tool/config/settings.py`, and `PREFIX` in `docs/gen_config_page.py`. Adjust the
+   default log directory and file name in `LogSettings`. Update `.env.example`, README
+   examples, and tests using `CLI_APP_` variables.
 4. Update `mkdocs.yml` (`site_name`, repository links, and the source watch path) and
    `docs/gen_ref_pages.py`, which scans the import package for API pages. Update names and
    links in README, docs, and `AGENTS.md`. If you host docs on GitHub Pages, configure Pages

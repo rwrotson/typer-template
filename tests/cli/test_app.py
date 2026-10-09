@@ -79,7 +79,7 @@ def test_output_format_json_includes_option_value() -> None:
 
 
 def test_json_stdout_stays_clean_with_verbose_logging(tmp_path: Path) -> None:
-    env = {**os.environ, "CLI_APP_LOG_DIR": str(tmp_path)}
+    env = {**os.environ, "CLI_APP_LOG__DIR": str(tmp_path)}
     result = subprocess.run(
         [
             sys.executable,

@@ -106,18 +106,20 @@ Bump type is inferred automatically: `fix:` → patch, `feat:` → minor, `feat!
 
 ## Configuration
 
-Console and logging behaviour can be configured via environment variables or a `.env` file:
+`cli_app.config.Settings` defines defaults in code and reads `CLI_APP_*` environment variables and `.env`; the process environment wins. Sections are nested with `__`:
 
 | Prefix | Controls |
 |--------|----------|
-| `CLI_APP_CONSOLE_*` | Rich console settings (theme, colors, width) |
-| `CLI_APP_LOG_*` | Log level, file rotation, JSON output, user log directory |
+| `CLI_APP_CONSOLE__*` | Rich console (width, colors, markup, quiet mode) |
+| `CLI_APP_LOG__*` | Log levels, console renderer, log directory, file rotation |
 
 ```env
-CLI_APP_LOG_LEVEL=DEBUG
-CLI_APP_LOG_USE_JSON_FORMATTER=true
-CLI_APP_CONSOLE_WIDTH=120
+CLI_APP_LOG__LEVEL=DEBUG
+CLI_APP_LOG__FORMAT=json
+CLI_APP_CONSOLE__WIDTH=120
 ```
+
+See `.env.example` and the generated configuration page in the documentation site.
 
 ## Project Structure
 
@@ -131,7 +133,7 @@ src/
     │   └── commands/
     │       ├── command.py   # example command group (stdin + output-format patterns)
     │       └── completion.py # shell completion sub-app
-    ├── core/                # application Settings
+    ├── config/              # Settings with console and log sections
     └── utils/
         ├── console.py       # singleton Rich Console
         ├── log.py           # structlog setup (ConsoleRenderer dev / JSON prod)

@@ -9,7 +9,7 @@ The pages below are generated from public objects in `src/cli_app/`.
 | `cli_app.cli.callbacks.meta` | Handle eager metadata options |
 | `cli_app.cli.commands.command` | Demonstrate stdin and text or JSON output |
 | `cli_app.cli.commands.completion` | Install or print shell completion |
-| `cli_app.core.settings` | Load application settings |
+| `cli_app.config.settings` | Define and load application settings |
 | `cli_app.utils.console` | Configure and share the Rich console |
 | `cli_app.utils.log` | Configure console and file logging |
 | `cli_app.utils.meta` | Read installed distribution metadata |
