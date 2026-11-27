@@ -3,6 +3,10 @@ site_description: A template for building Python CLI apps using Typer with Rich 
 repo_url: https://github.com/rwrotson/typer-template
 repo_name: rwrotson/typer-template
 
+exclude_docs: |
+  /agents/
+  /plans/
+
 watch:
   - src/cli_app/
   - .env.example

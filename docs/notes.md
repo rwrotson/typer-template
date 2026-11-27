@@ -71,27 +71,31 @@ The `commit-msg` hook checks Conventional Commit format.
 
 ## Renaming the Template
 
-Choose three names before editing: a distribution name (for example, `my-tool`), an import
-package (`my_tool`), and a CLI command (`my-tool`). They can differ, but each use of a name
-must stay consistent.
+Choose four names before editing: a distribution name (for example, `my-tool`), an import
+package (`my_tool`), a CLI command (`my-tool`), and an environment prefix (`MY_TOOL_`). They
+can differ, but each use of a name must stay consistent.
 
-1. Rename `src/cli_app/` to `src/my_tool/`. Replace `cli_app` in imports throughout `src/`
-   and `tests/`, including mock targets and the metadata test. Update `module-name` under
-   `[tool.uv.build-backend]`, `[tool.coverage.run].source`, and
-   `[tool.ruff.lint.isort].known-first-party` in `pyproject.toml`.
-2. Set `[project].name` and `[project.scripts]` in `pyproject.toml`. Point the script at
-   `my_tool.main:main`. Update the project description, authors, keywords, and other metadata.
+1. Rename `src/cli_app/` to `src/my_tool/` and `docs/agents/src/cli_app/` to
+   `docs/agents/src/my_tool/`. Replace every `cli_app` throughout `src/`, `tests/`, and
+   `docs/`: imports, mock targets, the metadata test, and paths and text in
+   `docs/gen_ref_pages.py` and `docs/gen_config_page.py`. Update `module-name` under
+   `[tool.uv.build-backend]`, `[tool.coverage.run].source`,
+   `[tool.ruff.lint.isort].known-first-party`, and `[tool.importlinter]` in `pyproject.toml`.
+2. Set `[project].name`, the description, authors, keywords, and `[project.urls]` in
+   `pyproject.toml`. Point `[project.scripts]` at `my_tool.main:main` under the new command
+   name, and replace `cli-app` in the CI wheel smoke test.
 3. Change `env_prefix` and the `env_fields()` default prefix in
    `src/my_tool/config/settings.py`, and `PREFIX` in `docs/gen_config_page.py`. Adjust the
    default log directory and file name in `LogSettings`. Update `.env.example`, README
    examples, and tests using `CLI_APP_` variables.
-4. Update `properdocs.yml` (`site_name`, repository links, and the source watch path) and
-   `docs/gen_ref_pages.py`, which scans the import package for API pages. Update names and
-   links in README, docs, and `AGENTS.md`. If you host docs on GitHub Pages, configure Pages
-   Source as **GitHub Actions** and allow release tags in the `github-pages` environment.
+4. Update `properdocs.yml` (`site_name`, `site_url`, repository links, `edit_uri` if the
+   default branch is not `main`, and the source watch path). Update names and links in
+   README, docs, `AGENTS.md`, `docs/agents/`, and the copyright holder in `LICENSE`. If you
+   host docs on GitHub Pages, configure Pages Source as **GitHub Actions** and allow release
+   tags in the `github-pages` environment.
 5. Regenerate the lockfile with `uv lock`, then run `uv sync --all-groups --locked`,
-   `uv run pytest`, `uv build`, and `uv run --group docs properdocs build`. Check that
-   `uv run my-tool --help` and `uv run my-tool --version` show the new project identity.
+   `uv run poe check`, `uv build`, and `uv run --group docs properdocs build --strict`. Check
+   that `uv run my-tool --help` and `uv run my-tool --version` show the new project identity.
 
 The release workflow only deploys documentation. Add a separate publishing workflow if the
 new project should publish packages to PyPI.
