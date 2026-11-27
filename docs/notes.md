@@ -21,6 +21,8 @@ module-root = "src"
 - `get_logger()` creates first-party loggers; third-party stdlib loggers use the same handlers.
 - Console logs use Rich-style output or JSON when `CLI_APP_LOG__FORMAT=json`.
 - File logs use JSON in the user log directory; `CLI_APP_LOG__DIR` overrides the directory.
+- `setup_logging(console=False)` disables console output; `extra=FILE_ONLY` keeps a single record out of the console.
+- `setup_logging()` without arguments uses the `LogSettings` defaults and does not read the environment; `main()` passes the loaded settings.
 - Timestamps are ISO 8601 in UTC.
 - `structlog.contextvars.bind_contextvars()` adds fields to subsequent logs in the current context.
 

@@ -9,7 +9,7 @@ A Python CLI template with Typer, Rich output, structlog logging, and environmen
 - One Pydantic `Settings` with nested `CLI_APP_CONSOLE__*` and `CLI_APP_LOG__*` sections, a test that keeps `.env.example` in sync, and a generated configuration page
 - structlog logging to stderr (console or JSON) and a rotating JSON log file with UTC timestamps
 - Strict MyPy with the Pydantic plugin, Ruff, pytest in parallel and random order with a 95% branch coverage gate, poethepoet tasks, pre-commit hooks, Commitizen
-- CI with a lowest-dependency test job, package and strict docs builds, pip-audit, and trivy; actions pinned to commit SHAs; ProperDocs on GitHub Pages after CI passes on a release tag
+- CI on Ubuntu and macOS with a lowest-dependency test job, package build with a wheel smoke test, strict docs build, pip-audit, and trivy; actions pinned to commit SHAs; ProperDocs on GitHub Pages after CI passes on a release tag
 
 ## Stack
 
@@ -47,24 +47,29 @@ Run development tasks with [poethepoet](https://poethepoet.natn.io/):
 
 ```bash
 uv run poe check       # format check, lint, import contracts, type check, tests with coverage
+uv run poe quick       # lint, import contracts, type check
 uv run poe fmt
 uv run poe test-fast
+uv run poe test-live   # tests/integration, may use the network; needs --live and reads .env
 uv run poe docs
 uv run poe audit
 ```
+
+Claude Code hooks in `.claude/` format and autofix the Python file just edited and run `poe quick` at the end of a turn when Python files changed. Personal overrides go in `.claude/settings.local.json`, which is git-ignored.
 
 Or run the tools directly:
 
 ```bash
 uv run pytest
 uv run pytest tests/path/to/test.py
+uv build
 ```
 
 ## Docs
 
 ```bash
 uv run --group docs properdocs serve
-uv run --group docs properdocs build
+uv run --group docs properdocs build --strict
 ```
 
 Source is in `docs/`. ProperDocs generates the API reference from public docstrings. The release workflow deploys the site to GitHub Pages.
@@ -130,11 +135,17 @@ CLI_APP_LOG__FORMAT=json
 CLI_APP_CONSOLE__WIDTH=120
 ```
 
+`CLI_APP_LOG__FILE_NAME` is a basename only; use `CLI_APP_LOG__DIR` to choose the directory.
+
 See `.env.example` and the generated configuration page in the documentation site.
 
 ## Project Structure
 
 ```
+.claude/                     # Claude Code hooks and settings
+docs/
+├── agents/                  # per-area instructions for coding agents
+└── plans/                   # local staged plans (git-ignored)
 src/
 └── cli_app/
     ├── main.py              # entry point
@@ -158,6 +169,7 @@ src/
         ├── emoji.py         # Emoji StrEnum
         ├── progress.py      # Rich Progress bar factory
         └── misc.py          # find_project_root()
+tests/                       # mirrors the package; integration/ holds opt-in --live tests
 ```
 
 ## CI/CD
@@ -167,9 +179,9 @@ src/
 | Job | What it does |
 |-----|-------------|
 | `quality` | ruff format check, ruff lint, import-linter contracts, strict mypy |
-| `test` | parallel tests in random order, 95% branch coverage enforced |
+| `test` | parallel tests in random order on Ubuntu and macOS, 95% branch coverage enforced |
 | `lowest` | tests against the lowest allowed direct dependencies |
-| `build` | package build, `properdocs build --strict`, pip-audit, trivy filesystem scan (CRITICAL/HIGH) |
+| `build` | package build and wheel smoke test (`py.typed`, import from site-packages, `--version`, example command), `properdocs build --strict`, pip-audit, trivy filesystem scan (CRITICAL/HIGH) |
 
 Dependabot opens weekly grouped PRs for uv dependencies, GitHub Actions, and pre-commit hooks.
 
@@ -177,7 +189,7 @@ Dependabot opens weekly grouped PRs for uv dependencies, GitHub Actions, and pre
 
 | Job | What it does |
 |-----|-------------|
-| `docs` | builds the docs with ProperDocs and deploys it to GitHub Pages via GitHub Actions |
+| `docs` | builds the docs with ProperDocs and deploys it to GitHub Pages via GitHub Actions (version tags only) |
 
 The workflow does not publish the package to PyPI. Set Pages Source to **GitHub Actions** and allow `v*` tags in the `github-pages` environment for tag-triggered deployments.
 
