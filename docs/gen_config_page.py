@@ -1,6 +1,8 @@
 import html
 import json
+import re
 from collections.abc import Iterator
+from typing import TypeAliasType
 
 import mkdocs_gen_files
 from pydantic.fields import FieldInfo
@@ -12,8 +14,13 @@ PREFIX = "CLI_APP_"
 
 def type_name(field: FieldInfo) -> str:
     """Format a field type for a Markdown table cell."""
-    name = str(field.annotation).replace("typing.", "").replace("pathlib.", "")
-    name = name.replace("_local.", "").replace("<class '", "").replace("'>", "")
+    annotation = field.annotation
+    if isinstance(annotation, TypeAliasType):
+        annotation = annotation.__value__
+
+    name = str(annotation).replace("<class '", "").replace("'>", "")
+    name = re.sub(r"\b(?:[a-z_]+\.)+([A-Za-z_]\w*)", r"\1", name)
+
     # A backslash-escaped pipe stays visible inside a code span, so use an HTML entity.
     return f"<code>{html.escape(name).replace('|', '&#124;')}</code>"
 
@@ -29,11 +36,13 @@ def default_value(field: FieldInfo) -> str:
 def table(rows: Iterator[tuple[str, FieldInfo]]) -> list[str]:
     """Build a configuration table from setting fields."""
     lines = ["| Variable | Type | Default | Description |", "| --- | --- | --- | --- |"]
+
     for variable, field in rows:
         description = field.description or ""
         lines.append(
             f"| `{variable}` | {type_name(field)} | {default_value(field)} | {description} |"
         )
+
     return lines
 
 
@@ -44,6 +53,7 @@ lines = [
     "environment variables and `.env` in the working directory; the process environment wins. "
     f"Nested sections use `__`, for example `{PREFIX}LOG__LEVEL`. Empty values use the default.",
 ]
+
 top_level = [
     (variable, field)
     for variable, field in env_fields()
@@ -51,6 +61,7 @@ top_level = [
 ]
 if top_level:
     lines += ["", "## Application", "", *table(iter(top_level))]
+
 for name, field in Settings.model_fields.items():
     section = nested_model(field)
     if section is None:

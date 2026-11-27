@@ -1,7 +1,9 @@
 site_name: typer-template
+site_url: https://rwrotson.github.io/typer-template/
 site_description: A template for building Python CLI apps using Typer with Rich output and structured logging
 repo_url: https://github.com/rwrotson/typer-template
 repo_name: rwrotson/typer-template
+edit_uri: edit/main/docs/
 
 exclude_docs: |
   /agents/
@@ -45,10 +47,10 @@ theme:
     - search.highlight
     - content.code.copy
     - content.code.annotate
+    - content.action.edit
 
 plugins:
   - search
-  - tags
   - minify:
       minify_html: true
       minify_js: true
@@ -63,7 +65,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [.]
+          paths: [src]
           options:
             show_source: true
             show_root_heading: true

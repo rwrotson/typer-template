@@ -19,27 +19,37 @@ keywords = [
     "mypy",
     "precommit",
     "properdocs",
-
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
 ]
+license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "platformdirs>=4.12.4",
+    "pydantic>=2.12.0",
     "pydantic-settings>=2.15.0",
     "rich>=15.0.0",
     "structlog>=26.1.0",
     "typer>=0.27.3",
 ]
 
+[project.urls]
+Repository = "https://github.com/rwrotson/typer-template"
+Documentation = "https://rwrotson.github.io/typer-template"
+Changelog = "https://github.com/rwrotson/typer-template/blob/main/CHANGELOG.md"
+
+[project.scripts]
+cli-app = "cli_app.main:main"
+
 [dependency-groups]
 dev = [
     "commitizen>=4.19.2",
-    "emojis>=0.7.0",
     "import-linter>=2.15",
     "mypy>=2.4.0",
     "poethepoet>=0.48.0",
@@ -47,6 +57,7 @@ dev = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "pytest-randomly>=5.0.0",
+    "pytest-socket>=0.8.1",
     "pytest-timeout>=2.4.0",
     "pytest-xdist>=3.8.0",
     "ruff>=0.16.10",
@@ -60,11 +71,6 @@ docs = [
     "properdocs>=1.6.7",
 ]
 
-[project.scripts]
-cli-app = "cli_app.main:main"
-
-
-
 # BUILD BACKEND ----------------------------------------------------------------
 [build-system]
 requires = ["uv_build>=0.12.24,<0.13"]
@@ -72,7 +78,12 @@ build-backend = "uv_build"
 
 [tool.uv]
 # Security floors for transitive dependencies.
-constraint-dependencies = ["urllib3>=2.8.0", "virtualenv>=21.7.13"]
+constraint-dependencies = [
+    "certifi>=2026.10.18",
+    "filelock>=4.2.1",
+    "urllib3>=2.8.0",
+    "virtualenv>=21.14.9",
+]
 
 [tool.uv.build-backend]
 module-name = "cli_app"
@@ -82,7 +93,8 @@ module-root = "src"
 # PYTEST -----------------------------------------------------------------------
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-ra --tb=short --strict-markers --strict-config -n auto"
+# xdist workers talk to the controller over Unix sockets, so those stay allowed.
+addopts = "-ra --tb=short --strict-markers --strict-config -n auto --disable-socket --allow-unix-socket"
 xfail_strict = true
 filterwarnings = ["error"]
 timeout = 30
@@ -225,6 +237,32 @@ root_package = "cli_app"
 include_external_packages = true
 
 [[tool.importlinter.contracts]]
+name = "Package layers"
+type = "layers"
+layers = ["cli_app.main", "cli_app.cli", "cli_app.utils | cli_app.services", "cli_app.config"]
+
+[[tool.importlinter.contracts]]
+name = "CLI modules layers"
+type = "layers"
+containers = ["cli_app.cli"]
+layers = ["app", "errors | commands | callbacks", "context"]
+exhaustive = true
+
+[[tool.importlinter.contracts]]
+name = "Utility modules layers"
+type = "layers"
+containers = ["cli_app.utils"]
+layers = ["output | progress", "console", "format | log | meta | misc | stdin | emoji"]
+exhaustive = true
+
+[[tool.importlinter.contracts]]
+name = "Service modules layers"
+type = "layers"
+containers = ["cli_app.services"]
+layers = ["example", "errors"]
+exhaustive = true
+
+[[tool.importlinter.contracts]]
 name = "Services stay independent of the CLI, configuration, and output"
 type = "forbidden"
 source_modules = ["cli_app.services"]
@@ -245,6 +283,27 @@ type = "forbidden"
 source_modules = ["cli_app.utils"]
 forbidden_modules = ["cli_app.cli", "cli_app.services"]
 
+[[tool.importlinter.contracts]]
+name = "Transitive dependencies are not imported directly"
+type = "forbidden"
+source_modules = ["cli_app"]
+forbidden_modules = [
+    "annotated_doc",
+    "annotated_types",
+    "click",
+    "colorama",
+    "dotenv",
+    "markdown_it",
+    "mdurl",
+    "pydantic_core",
+    "pygments",
+    "shellingham",
+    "typing_extensions",
+    "typing_inspection",
+]
+# Direct dependencies import them internally.
+allow_indirect_imports = true
+
 
 # POETHEPOET -------------------------------------------------------------------
 [tool.poe.tasks]
@@ -255,8 +314,13 @@ lint-imports = "lint-imports"
 typecheck = "mypy"
 test = "pytest --cov"
 test-fast = "pytest"
+quick = ["lint", "lint-imports", "typecheck"]
 docs = "properdocs serve"
 check = ["fmt-check", "lint", "lint-imports", "typecheck", "test"]
+
+[tool.poe.tasks.test-live]
+cmd = "pytest tests/integration --live -n 0 -p no:randomly"
+envfile = { optional = [".env"] }
 
 [tool.poe.tasks.audit]
 shell = """
