@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 import typer
@@ -5,7 +6,10 @@ from typer.core import TyperGroup
 
 from cli_app.cli.context import AppContext
 from cli_app.services.errors import ServiceError
+from cli_app.utils.log import FILE_ONLY
 from cli_app.utils.output import OutputFormat, error_json
+
+_logger = logging.getLogger(__name__)
 
 
 class ServiceErrorGroup(TyperGroup):
@@ -17,6 +21,7 @@ class ServiceErrorGroup(TyperGroup):
         try:
             return super().invoke(ctx)
         except ServiceError as error:
+            _logger.error("Command failed: %s", error, exc_info=error, extra=FILE_ONLY)
             app_context = ctx.find_object(AppContext)
             if app_context is not None and app_context.output_format == OutputFormat.json:
                 error_json(type(error).__name__, str(error))

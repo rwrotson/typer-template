@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from cli_app.config import Settings, load_settings
+from cli_app.config import LogSettings, Settings, load_settings
 from cli_app.config.settings import env_fields
 
 ENV_EXAMPLE = Path(__file__).parents[2] / ".env.example"
@@ -65,3 +65,13 @@ def test_env_example_documents_every_setting() -> None:
 
 def test_every_setting_has_a_description() -> None:
     assert [name for name, field in env_fields() if not field.description] == []
+
+
+@pytest.mark.parametrize("name", ["", ".", "..", "a/b.log", "../x.log", "a\\b.log"])
+def test_log_file_name_must_be_a_basename(name: str) -> None:
+    with pytest.raises(ValidationError):
+        LogSettings(file_name=name)
+
+
+def test_log_file_name_accepts_basename() -> None:
+    assert LogSettings(file_name="app.log").file_name == "app.log"
