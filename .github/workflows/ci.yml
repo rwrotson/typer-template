@@ -29,7 +29,11 @@ jobs:
       - run: uv run --no-sync poe typecheck
 
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
@@ -57,6 +61,15 @@ jobs:
           enable-cache: true
       - run: uv sync --locked --all-groups
       - run: uv build
+      - name: Smoke-test the wheel
+        run: |
+          wheel="$(ls dist/*.whl)"
+          # grep -q would exit early and fail unzip with SIGPIPE under pipefail.
+          unzip -l "$wheel" | grep 'cli_app/py.typed'
+          uv run --isolated --no-project --with "$wheel" python -c \
+            "import cli_app; assert 'site-packages' in cli_app.__file__"
+          uv run --isolated --no-project --with "$wheel" cli-app --version
+          uv run --isolated --no-project --with "$wheel" cli-app command example-command hello
       - run: uv run --no-sync properdocs build --strict
       - run: uv run --no-sync poe audit
       - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
